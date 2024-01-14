@@ -479,7 +479,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
 func Auto_delete() {  
     auto_delete_stmt := `SELECT Id, Board
         FROM posts AS outer WHERE Id > (SELECT Id FROM latest AS inner WHERE inner.Board = outer.Board LIMIT 1) - 6 AND
-        Content LIKE '%' || ? || '%'`
+        REGEX_REPLACE('[^a-zA-Z0-9]', Content, '') LIKE '%' || ? || '%'`
     
     for range time.Tick(5 * time.Minute) { //change to five
         func() {

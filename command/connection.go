@@ -2,7 +2,7 @@ package main
 
 import (
     "database/sql"
-    _ "github.com/mattn/go-sqlite3"
+    sqlite3 "github.com/mattn/go-sqlite3"
 )
 
 const Max_conns = 5
@@ -242,8 +242,15 @@ func Make_Conns() {
 
         readConns <- read_stmts
     }
+
+    sql.Register("sqlite3wregex",
+        &sqlite3.SQLiteDriver{
+            Extensions: []string{
+                BP + `icu_replace`,
+            },
+        })
   
-    new_conn, err := sql.Open("sqlite3", DB_uri)
+    new_conn, err := sql.Open("sqlite3wregex", DB_uri)
     Err_check(err)
     writeConn <- new_conn
 }
