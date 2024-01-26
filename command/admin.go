@@ -480,8 +480,8 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
 }
 
 var ubl = make(map[string]bool)
-var nakedlinkreg = regexp.MustCompile(`(?:http|ftp|https):\/\/([a-z|A-Z|0-9|-|\.]+)`)
-var urlreg = regexp.MustCompile(`\A[a-z|0-9|-|\.]+`)
+var nakedlinkreg = regexp.MustCompile(`(?:http|ftp|https):\/\/([a-z|A-Z|0-9|\-|\.]+)`)
+var urlreg = regexp.MustCompile(`\A[a-z|0-9|\-|\.]+`)
 
 func Get_bl() {
     clear(ubl)
