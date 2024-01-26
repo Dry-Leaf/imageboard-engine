@@ -5,6 +5,8 @@ import (
     "strings"
     "time"
     "strconv"
+    "regexp"
+    "io/ioutil"
     "database/sql"
     "text/template"
     "context"
@@ -473,6 +475,33 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
         results := Query_results{Posts: most_recent, Auth: userSession.acc_type}
 	err = mostrecent_temp.Execute(w, results)
 	Err_check(err)
+    }
+}
+
+var ubl map[string]bool
+var nakedlinkreg = regexp.MustCompile(`(?:http|ftp|https):\/\/([^\s\/]+)`)
+var urlreg = regexp.MustCompile(`\A[a-z|0-9|-]+`)
+
+func Get_bl() {
+    clear(ubl)
+
+    resp,err := http.Get(URL_bl)
+    Err_check(err)
+    defer resp.Body.Close()
+
+    body, err := ioutil.ReadAll(resp.Body)
+    Err_check(err)
+    lines := strings.Split(string(body), "\n")
+
+    for _, line := range lines {
+        if urlreg.MatchString(line) {
+            ubl[line] = true
+    }}
+}
+
+func Renew_bl() {
+    for range time.Tick(12 * time.Hour) {
+        Get_bl()
     }
 }
 

@@ -20,6 +20,7 @@ var Themes []string
 var INV_INST string
 var Word_filter = make(map[*regexp.Regexp]string)
 var Forbidden = make(map[string]bool)
+var URL_bl string
 var Auto_phrases []string
 
 func Load_conf() { 
@@ -29,6 +30,7 @@ func Load_conf() {
 
     SiteName = cfg.Section("").Key("site name").String()
     BP = cfg.Section("").Key("base path").String()
+    URL_bl = cfg.Section("").Key("url blacklist").String()
     Max_request_size, err = cfg.Section("").Key("max request size").Int64()
     Err_check(err)
     Max_upload_size = 1024 * 1024 * Max_request_size
