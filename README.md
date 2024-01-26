@@ -29,7 +29,9 @@ Other
 
 - Files keep their original name when downloaded 
 
-- Video embedding without JS(uses ytp-dl) 
+- Video embedding without JS(uses ytp-dl)
+
+- Supports using an external url blacklist
 
 - Webp thumbnails 
 
