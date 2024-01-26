@@ -3,7 +3,7 @@ package main
 //loads configuation information
 import (
     "log"
-	"regexp"
+    "regexp"
 
     ini "gopkg.in/ini.v1"
 )

@@ -10,6 +10,7 @@ import (
     "database/sql"
     "text/template"
     "context"
+    //"fmt"
 
     "github.com/google/uuid"
 )
@@ -478,8 +479,8 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
     }
 }
 
-var ubl map[string]bool
-var nakedlinkreg = regexp.MustCompile(`(?:http|ftp|https):\/\/([^\s\/]+)`)
+var ubl = make(map[string]bool)
+var nakedlinkreg = regexp.MustCompile(`(?:http|ftp|https):\/\/([a-z|A-Z|0-9|\.]+)`)
 var urlreg = regexp.MustCompile(`\A[a-z|0-9|-]+`)
 
 func Get_bl() {
@@ -505,12 +506,15 @@ func Renew_bl() {
     }
 }
 
-func Auto_delete() {  
+func Auto_delete() {
+    wholesale_stmt := `SELECT Id, Board, Content
+        FROM posts AS outer WHERE Id > (SELECT Id FROM latest AS inner WHERE inner.Board = outer.Board LIMIT 1) - 6`
+        
     auto_delete_stmt := `SELECT Id, Board
         FROM posts AS outer WHERE Id > (SELECT Id FROM latest AS inner WHERE inner.Board = outer.Board LIMIT 1) - 6 AND
         REGEX_REPLACE('[^a-zA-Z0-9]', Content, '') LIKE '%' || ? || '%'`
     
-    for range time.Tick(5 * time.Minute) { //change to five
+    for range time.Tick(5 * time.Minute) {
         func() {
             update_posts := false
             boards_to_update := make(map[string]bool)
@@ -524,6 +528,27 @@ func Auto_delete() {
             Err_check(err)
             defer new_tx.Rollback()
 
+            to_check, err := new_tx.Query(wholesale_stmt)
+            Err_check(err)
+            defer to_check.Close()
+
+            for to_check.Next() {
+                var cid string
+                var cboard string
+                var ccontent string
+
+                err = to_check.Scan(&cid, &cboard, &ccontent)
+                Err_check(err)
+
+                matches := nakedlinkreg.FindAllStringSubmatch(ccontent, -1)
+                for _, match := range matches {
+                    if _, prs := ubl[match[1]]; prs {
+                        boards_to_update[cboard] = true
+                        delete_tree(cid, cboard, new_tx, ctx)
+                        update_posts = true
+                        break
+                }}
+            }
 
             for _, phrase := range Auto_phrases {
                 to_delete, err := new_tx.Query(auto_delete_stmt, phrase)

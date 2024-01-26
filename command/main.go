@@ -71,6 +71,11 @@ func main() {
     Make_Conns()
     go Clean(40 * time.Hour, "get_deleted", "delete_remove")
     go Clean(10 * time.Minute, "get_expired_tokens", "delete_expired_token")
+
+    if URL_bl != "" {
+        Get_bl()
+        go Renew_bl()
+    }
     go Auto_delete()
  
     for board, _ := range Board_map{
