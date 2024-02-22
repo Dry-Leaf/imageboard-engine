@@ -42,8 +42,8 @@ Other
 ## Compile Instructions
 sudo apt install build-essential cmake git libvips-dev libavformat-dev libswresample-dev libavcodec-dev libavutil-dev libavformat-dev libswscale-dev
 
-sudo apt install golang-1.21/bookworm-backports
 sudo apt install golang-go/bookworm-backports
+
 `Or compile the latest version of Go`
 
 sudo apt install yt-dlp/bookworm-backports
