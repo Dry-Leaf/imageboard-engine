@@ -507,10 +507,10 @@ func Renew_bl() {
 }
 
 func Auto_delete() {
-    wholesale_stmt := `SELECT Id, Board, Content
+    wholesale_stmt := `SELECT Id, Board, Content, Parent
         FROM posts AS outer WHERE Id > (SELECT Id FROM latest AS inner WHERE inner.Board = outer.Board LIMIT 1) - 6`
         
-    auto_delete_stmt := `SELECT Id, Board
+    auto_delete_stmt := `SELECT Id, Board, Parent
         FROM posts AS outer WHERE Id > (SELECT Id FROM latest AS inner WHERE inner.Board = outer.Board LIMIT 1) - 6 AND
         REGEX_REPLACE('[^a-zA-Z0-9]', Content, '') LIKE '%' || ? || '%'`
     
@@ -518,6 +518,7 @@ func Auto_delete() {
         func() {
             update_posts := false
             boards_to_update := make(map[string]bool)
+            threads_to_update := make(map[[2]string]bool)
             
             ctx := context.Background()
             ctx, cancel := context.WithTimeout(ctx, 5 * time.Minute)           
@@ -536,14 +537,16 @@ func Auto_delete() {
                 var cid string
                 var cboard string
                 var ccontent string
+                var cparent string
 
-                err = to_check.Scan(&cid, &cboard, &ccontent)
+                err = to_check.Scan(&cid, &cboard, &ccontent, &cparent)
                 Err_check(err)
 
                 matches := nakedlinkreg.FindAllStringSubmatch(ccontent, -1)
                 for _, match := range matches {
                     if _, prs := ubl[match[1]]; prs {
                         boards_to_update[cboard] = true
+                        threads_to_update[[2]string{cparent, cboard}] = true
                         delete_tree(cid, cboard, new_tx, ctx)
                         update_posts = true
                         break
@@ -559,11 +562,13 @@ func Auto_delete() {
                     update_posts = true
                     var cid string
                     var cboard string
+                    var cparent string
                     
-                    err = to_delete.Scan(&cid, &cboard)
+                    err = to_delete.Scan(&cid, &cboard, &cparent)
                     Err_check(err)
 
                     boards_to_update[cboard] = true
+                    threads_to_update[[2]string{cparent, cboard}] = true
                     
                     delete_tree(cid, cboard, new_tx, ctx)
             }}
@@ -573,6 +578,9 @@ func Auto_delete() {
             cancel()
 
             if update_posts {
+                for thread, _ := range threads_to_update {
+                    go Build_thread(thread[0], thread[1])
+                }
                 for board, _ := range boards_to_update {
                     go Build_board(board)
                     go Build_catalog(board)
