@@ -210,7 +210,7 @@ func get_posts(parent string, board string) ([]*Post, error) {
         var pst Post
 		pst.BoardN = board
 		
-        err = rows.Scan(&pst.Id, &pst.Content, &pst.Time, &pst.File,
+        err = rows.Scan(&pst.Id, &pst.Content, &pst.Time, &pst.Parent, &pst.File,
             &pst.Filename, &pst.Fileinfo, &pst.Filemime, &pst.Imgprev, &pst.Option, &pst.Pinned, &pst.Locked, &pst.Anchored)
         Err_check(err)
 

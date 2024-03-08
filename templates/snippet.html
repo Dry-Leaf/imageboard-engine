@@ -2,7 +2,7 @@
     <postwrap>
         <div id="no{{.Id}}" class="post">
 
-                    <label class="{{.Option}}"><time>{{.Time}}</time> <selfref><a href="#no{{.Id}}">No. </a><a class="plink" href="#newpost">{{.Id}}</a></selfref>{{if .Replies}}{{range .Replies}}<ref class="reply"><a href="#no{{.}}">&gt;&gt;{{.}}</a></ref>{{end}}{{end}}</label>
+                    <label class="{{.Option}}"><time>{{.Time}}</time> <selfref><a href="{{.Parent}}.html#no{{.Id}}">No. </a><a class="plink" href="#newpost">{{.Id}}</a></selfref>{{if .Replies}}{{range .Replies}}<ref class="reply"><a href="#no{{.}}">&gt;&gt;{{.}}</a></ref>{{end}}{{end}}</label>
                     <br>
                     {{if .File}}<label>File <a href="Files/{{.File}}" download="{{.Filename}}">{{.Filename}}</a> - ({{.Fileinfo}})</label>
                     <br>

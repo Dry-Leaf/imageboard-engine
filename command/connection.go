@@ -15,7 +15,7 @@ const (
     prev_string = `SELECT Content, Time, COALESCE(Filename, '') Filename, COALESCE(Fileinfo, '') Fileinfo, COALESCE(Filemime, '') Filemime,
             COALESCE(Imgprev, '') Imgprev, Option FROM posts WHERE Id = ? AND Board = ?`
     prev_parentstring = `SELECT Parent FROM posts WHERE Id = ? AND Board = ?`
-    updatestring = `SELECT Id, Content, Time, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
+    updatestring = `SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
                 COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option, 
                 Pinned, Locked, Anchored
                 FROM posts WHERE Parent = ? AND Board = ?`
