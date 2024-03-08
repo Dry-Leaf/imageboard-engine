@@ -141,6 +141,10 @@ iframe {
     height: 315px;
 }
 
+pre+br {
+    display: none;
+}
+
 .imspec, video {
     float: left;
     padding-right: 15px;
