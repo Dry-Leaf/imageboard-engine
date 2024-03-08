@@ -8,6 +8,7 @@ import (
 )
 
 var nlreg = regexp.MustCompile("\n")
+var prenlreg = regexp.MustCompile(`\\p`)
 var tagreg = regexp.MustCompile("(br>)(<)")
 
 var repreg = regexp.MustCompile(`(?i)&gt;&gt;(/(\D+)/)?(\d+)\b`)
@@ -24,7 +25,8 @@ var vidreg *regexp.Regexp
 
 const rand_charset = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_`~!@#$%^&*?"
 
-const (    
+const (
+    prenlpost = "\n"
     nlpost = "\n<br>"
     tagpost = "$1\n$2"
     reppost = `<a class="preview" prev-get="/im/ret/?p=$3&board=#board" href="#/2/3.html#no$3">&#62;&#62;$1$3</a>`
@@ -138,15 +140,34 @@ func process(rawline, board, orig_parent string) (string, []string) {
     return postline, repmatches  
 }
 
+var deli_map = map[string]string{"```": `<pre class="codeblock">`,
+    "@@@": `<pre class="shiftjs">`}
+
 func Format_post(input, board, orig_parent string) (string, []string) {
+    mlblock := func(scanner *bufio.Scanner, delimeter string) string {
+        var cb string
+        for scanner.Scan() {
+            if strings.HasSuffix(scanner.Text(), delimeter) {break}
+            if len(cb) > 0 {cb += `\p`}
+            cb += scanner.Text()
+        }
+        return deli_map[delimeter] + cb + "</pre>"
+    }
 
     scanner := bufio.NewScanner(strings.NewReader(input))
-    scanner.Scan()
+    //scanner.Scan()
 
-    output, repmatches := process(scanner.Text(), board, orig_parent)
+    //output, repmatches := process(scanner.Text(), board, orig_parent)
+    var output string
+    var repmatches []string
 
     for scanner.Scan() {
-        output += "\n"
+        if scanner.Text() == "```" || scanner.Text() == "@@@" {
+            output += mlblock(scanner, scanner.Text())
+            continue
+        }
+
+        if len(output) > 0 {output += "\n"}
         coutput, crepmatches := process(scanner.Text(), board, orig_parent)     
         output += coutput
         repmatches = append(repmatches, crepmatches...)
@@ -155,6 +176,7 @@ func Format_post(input, board, orig_parent string) (string, []string) {
     repmatches = removeDuplicates(repmatches)
 
     output = nlreg.ReplaceAllString(output, nlpost)
+    output = prenlreg.ReplaceAllString(output, prenlpost)
     output = tagreg.ReplaceAllString(output, tagpost)
 
     return output, repmatches

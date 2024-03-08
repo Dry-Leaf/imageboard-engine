@@ -363,3 +363,14 @@ iframe {
 .bannerimg {
     height: 100px;
 }
+
+.codeblock {
+    background-color: rgba(0,0,0,.5);
+    color: snow;
+    padding: .4em
+}
+
+.shiftjs {
+    font-family: IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona, 'MS Pgothic', 'MS Pゴシック';
+    line-height: 1.2em;
+}
