@@ -141,7 +141,7 @@ func process(rawline, board, orig_parent string) (string, []string) {
 }
 
 var deli_map = map[string]string{"```": `<pre class="codeblock">`,
-    "@@@": `<pre class="shiftjs">`}
+    "@@@": `<pre class="shift_jis">`}
 
 func Format_post(input, board, orig_parent string) (string, []string) {
     mlblock := func(scanner *bufio.Scanner, delimeter string) string {
