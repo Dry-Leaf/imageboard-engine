@@ -20,6 +20,8 @@ var spoilreg = regexp.MustCompile(`~~([^<]+)~~`)
 var boldreg = regexp.MustCompile(`\*\*([^<])\*\*`)
 var italicreg = regexp.MustCompile(`__([^<]+)__`)
 var linkreg = regexp.MustCompile(`([^>"]|\A)(http|ftp|https):\/\/(\S+)`)
+var cbreg = regexp.MustCompile("```(.|\n)+```")
+var sjisreg = regexp.MustCompile(`@@@@(.|\n)+@@@`)
 
 var vidreg *regexp.Regexp
 
@@ -184,6 +186,8 @@ func Format_post(input, board, orig_parent string) (string, []string) {
 
 func hprocess(rawline string) string {
     postline := spoilreg.ReplaceAllString(rawline, "~~SPOILER~~")
+    postline = cbreg.ReplaceAllString(postline, "**CODE BLOCK**")
+    postline = sjisreg.ReplaceAllString(postline, "**SHIFT JIS**")
     postline = boldreg.ReplaceAllString(postline, `$1`)
     postline = italicreg.ReplaceAllString(postline, `$1`)
     return postline
