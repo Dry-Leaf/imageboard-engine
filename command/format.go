@@ -4,7 +4,7 @@ import (
     "strings"
     "bufio"
     "regexp"
-	"math/rand"
+    "math/rand"
 )
 
 var nlreg = regexp.MustCompile("\n")
@@ -17,11 +17,11 @@ var prevreg = regexp.MustCompile(`#board`)
 var quoreg = regexp.MustCompile(`&gt;(\S.+)`)
 
 var spoilreg = regexp.MustCompile(`~~([^<]+)~~`)
-var boldreg = regexp.MustCompile(`\*\*([^<])\*\*`)
+var boldreg = regexp.MustCompile(`\*\*([^<]+)\*\*`)
 var italicreg = regexp.MustCompile(`__([^<]+)__`)
 var linkreg = regexp.MustCompile(`([^>"]|\A)(http|ftp|https):\/\/(\S+)`)
 var cbreg = regexp.MustCompile("```(.|\n)+```")
-var sjisreg = regexp.MustCompile(`@@@@(.|\n)+@@@`)
+var sjisreg = regexp.MustCompile(`@@@(.|\n)+@@@`)
 
 var vidreg *regexp.Regexp
 
@@ -186,14 +186,15 @@ func Format_post(input, board, orig_parent string) (string, []string) {
 
 func hprocess(rawline string) string {
     postline := spoilreg.ReplaceAllString(rawline, "~~SPOILER~~")
-    postline = cbreg.ReplaceAllString(postline, "**CODE BLOCK**")
-    postline = sjisreg.ReplaceAllString(postline, "**SHIFT JIS**")
     postline = boldreg.ReplaceAllString(postline, `$1`)
     postline = italicreg.ReplaceAllString(postline, `$1`)
     return postline
 }
 
 func HProcess_post(input string) (string, string) {
+    input = cbreg.ReplaceAllString(input, "|CODE BLOCK|")
+    input = sjisreg.ReplaceAllString(input, "|SHIFT JIS|")
+    
     scanner := bufio.NewScanner(strings.NewReader(input))
     scanner.Scan()
 
