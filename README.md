@@ -89,6 +89,14 @@ bold: \*\*example\*\*
 
 italics: \_\_example\_\_
 
+code block: \`\`\`
+                example
+            \`\`\`
+
+shift jis: \@\@\@
+               example
+           \@\@\@
+
 ## Project status
 As of 10/1/23, Ogai is considered feature complete. 
 
