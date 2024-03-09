@@ -39,6 +39,8 @@ Other
 
 - No PHP or Perl
 
+- RSS support
+
 ## Compile Instructions
 sudo apt install build-essential cmake git libvips-dev libavformat-dev libswresample-dev libavcodec-dev libavutil-dev libavformat-dev libswscale-dev
 
