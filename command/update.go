@@ -237,7 +237,7 @@ func get_posts(parent string, board string) ([]*Post, error) {
     return thread_body, err
 }
 
-func get_rss(board string) []*Post {
+func get_rss(board, parent string) []*Post {
     if len(board) == 0 {board = "home"}
 
     stmts := Checkout()
@@ -245,7 +245,7 @@ func get_rss(board string) []*Post {
 
     rss_coll_stmt := stmts["rss_coll"]
 
-    rows, err := rss_coll_stmt.Query(board)
+    rows, err := rss_coll_stmt.Query(board, parent)
     Err_check(err)
     defer rows.Close()
 
@@ -314,7 +314,9 @@ func Build_thread(parent string, board string) { //will accept argument for boar
 
 }
 
-func Build_rss(board string) {
+func Build_rss(board, parent string) {
+    if len(parent) == 0 {parent = "rss"}
+
     rsstemp := template.New("rss.xml").Funcs(Filefuncmap)
     rsstemp, err := rsstemp.ParseFiles(BP + "/templates/rss.xml")
     Err_check(err)
@@ -323,11 +325,11 @@ func Build_rss(board string) {
     if len(board) > 0 {path += "/"}
     Dir_check(path)
 
-    f, err := os.Create(path + "rss.xml")
+    f, err := os.Create(path + parent + ".xml")
     Err_check(err)
     defer f.Close()
 
-    posts := get_rss(board)
+    posts := get_rss(board, parent)
 
     crss := RSS{Board: board, TLD: TLD, Site_name: SiteName, Posts: posts}
     rsstemp.Execute(f, crss)

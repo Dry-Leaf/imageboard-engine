@@ -169,6 +169,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                 
                 file_path := BP + "head/" + PBoard + "/"
                 Delete_file(file_path, PID + ".html", "")
+                Delete_file(file_path, PID + ".xml", "")
                 
                 if PBoard != board {other_boards[PBoard] = true}
             }
@@ -316,6 +317,7 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
     if pcheck {
             file_path := BP + "head/" + board + "/"
             Delete_file(file_path, id + ".html", "")
+            Delete_file(file_path, id + ".xml", "")
     }
 
     delete_post_stmt := WriteStrings["delete_post"]

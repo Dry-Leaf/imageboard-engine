@@ -100,6 +100,7 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
             if pcheck {
                 file_path := BP + "head/" + board + "/"
                 Delete_file(file_path, id + ".html", "")
+                Delete_file(file_path, id + ".xml", "")
             }
             
             res, err := new_tx.ExecContext(ctx, user_delete_stmt, sdate, post_pass, board)
