@@ -52,6 +52,13 @@ type Board struct {
     SThemes []string
 }
 
+type RSS struct {
+    Site_name string
+    TLD string
+    Board string
+    Posts []*Post
+}
+
 //getting kind of file 
 var Filefuncmap = template.FuncMap {
     "imagecheck": func(filemime string) bool {
@@ -230,6 +237,32 @@ func get_posts(parent string, board string) ([]*Post, error) {
     return thread_body, err
 }
 
+func get_rss(board string) []*Post {
+    if len(board) == 0 {board = "home"}
+
+    stmts := Checkout()
+    defer Checkin(stmts)
+
+    rss_coll_stmt := stmts["rss_coll"]
+
+    rows, err := rss_coll_stmt.Query(board)
+    Err_check(err)
+    defer rows.Close()
+
+    var rss_body []*Post
+
+    for rows.Next() {
+        var pst Post
+		
+        err = rows.Scan(&pst.Id, &pst.BoardN, &pst.Content, &pst.Parent, &pst.File, &pst.Imgprev)
+        Err_check(err)
+
+        rss_body = append(rss_body, &pst)
+    }
+
+    return rss_body
+}
+
 func Build_board(board string) {
     boardtemp := template.New("board.html").Funcs(Filefuncmap)
     boardtemp, err := boardtemp.ParseFiles(BP + "/templates/board.html", BP + "/templates/snippet.html")
@@ -247,7 +280,6 @@ func Build_board(board string) {
     cboard := Board{Name: board,  Desc: Board_map[board],Threads: threads,
         Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
     boardtemp.Execute(f, cboard)
-
 }
 
 func Build_thread(parent string, board string) { //will accept argument for board and thread number
@@ -266,8 +298,6 @@ func Build_thread(parent string, board string) { //will accept argument for boar
     Err_check(err)
     defer f.Close()
 
-
-
     if err == nil {
         var thr Thread
 
@@ -282,4 +312,23 @@ func Build_thread(parent string, board string) { //will accept argument for boar
         threadtemp.Execute(f, thr)
     }
 
+}
+
+func Build_rss(board string) {
+    rsstemp := template.New("rss.xml").Funcs(Filefuncmap)
+    rsstemp, err := rsstemp.ParseFiles(BP + "/templates/rss.xml")
+    Err_check(err)
+
+    path := BP + "head/" + board
+    if len(board) > 0 {path += "/"}
+    Dir_check(path)
+
+    f, err := os.Create(path + "rss.xml")
+    Err_check(err)
+    defer f.Close()
+
+    posts := get_rss(board)
+
+    crss := RSS{Board: board, TLD: TLD, Site_name: SiteName, Posts: posts}
+    rsstemp.Execute(f, crss)
 }

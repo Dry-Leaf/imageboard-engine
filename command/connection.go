@@ -41,6 +41,8 @@ const (
     shown_countstring = `Select COUNT(*), COUNT(File) FROM 
       (SELECT *	FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2 ORDER BY Id DESC LIMIT 5)`
     total_countstring = `Select COUNT(*), COUNT(File) FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2`
+    rss_collstring = `SELECT Id, Board, Content, Parent, COALESCE(File, '') AS File, COALESCE(Imgprev, '') Imgprev
+                          FROM posts WHERE Board = ?1 OR ?1 = "home" LIMIT 20`
 
     //all inserts(and necessary queries) are preformed in one transaction 
     newpost_wfstring = `INSERT INTO posts(Board, Id, Content, Time, Parent, Identifier, File, Filename, Fileinfo, Filemime, Imgprev, Hash,
@@ -232,13 +234,19 @@ func Make_Conns() {
 
         total_countstmt, err := conn13.Prepare(total_countstring)
         Err_check(err)
+
+        conn14, err := sql.Open("sqlite3", DB_uri)
+        Err_check(err)
+        
+        rss_collstmt, err := conn14.Prepare(rss_collstring)
+        Err_check(err)
         
         read_stmts := map[string]*sql.Stmt{"prev": prev_stmt, "prev_parent": prev_parentstmt,
             "update": updatestmt, "update_rep": update_repstmt, "parent_coll": parent_collstmt,
             "thread_head": thread_headstmt, "thread_body": thread_bodystmt,
             "thread_coll": thread_collstmt,"subject_look": subject_lookstmt,
             "hp_coll": hp_collstmt, "ht_coll": ht_collstmt,
-            "shown_count": shown_countstmt, "total_count": total_countstmt}
+            "shown_count": shown_countstmt, "total_count": total_countstmt, "rss_coll": rss_collstmt}
 
         readConns <- read_stmts
     }

@@ -9,6 +9,7 @@ import (
 )
 
 var SiteName string
+var TLD string
 var BP string
 var Max_request_size int64
 var boards []*ini.Key
@@ -29,6 +30,7 @@ func Load_conf() {
     Err_check(err)
 
     SiteName = cfg.Section("").Key("site name").String()
+    TLD = cfg.Section("").Key("tld").String()
     BP = cfg.Section("").Key("base path").String()
     URL_bl = cfg.Section("").Key("url blacklist").String()
     Max_request_size, err = cfg.Section("").Key("max request size").Int64()
