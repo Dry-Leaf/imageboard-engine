@@ -42,7 +42,7 @@ const (
       (SELECT *	FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2 ORDER BY Id DESC LIMIT 5)`
     total_countstring = `Select COUNT(*), COUNT(File) FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2`
     rss_collstring = `SELECT Id, Board, Content, Parent, COALESCE(File, '') AS File, COALESCE(Imgprev, '') Imgprev
-                          FROM posts WHERE Board = ?1 OR ?1 = "home" LIMIT 20`
+                          FROM posts WHERE Board = ?1 OR ?1 = "home" ORDER BY ROWID DESC LIMIT 20`
 
     //all inserts(and necessary queries) are preformed in one transaction 
     newpost_wfstring = `INSERT INTO posts(Board, Id, Content, Time, Parent, Identifier, File, Filename, Fileinfo, Filemime, Imgprev, Hash,
