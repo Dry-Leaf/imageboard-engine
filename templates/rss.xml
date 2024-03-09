@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+
+{{$postlink := printf "%s%s%s%s" "https://" .Site_name "." .TLD}}
+
+<title>{{.Site_name}}{{if ne .Board ""}} -{{.Board}}{{end}}</title>
+<description>Live RSS feed for $linkhead</description>
+
+<link>{{$postlink}}{{if ne .Board ""}}/{{.Board}}{{end}}</link>
+<atom:link href="{{$postlink}}{{if ne .Board ""}}/{{.Board}}{{end}}" rel="self" type="application/rss+xml"/>
+{{range .Posts}}
+    <item>
+        <title>/{{.BoardN}}/{{.Id}}</title>
+        <link>{{$postlink}}/{{.BoardN}}/{{.Parent}}.html#no{{.Id}}</link>
+        <guid isPermaLink="true">{{$postlink}}/{{.BoardN}}/{{.Parent}}.html#no{{.Id}}</guid>
+
+        <description><![CDATA[
+        {{if .File}}<a href="{{$postlink}}/{{.BoardN}}/{{.File}}">
+        <img src="{{$postlink}}/{{if eq .Imgprev "audio_image.webp"}}resources/audio_image.webp{{else}}{{.BoardN}}/{{.Imgprev}}{{end}}"/></a>
+        <br/><br/>{{end}}
+        {{.Content}}]]></description>
+    </item>{{end}}
+
+</channel>
+</rss>
+
