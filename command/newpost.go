@@ -386,6 +386,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
 
     go Build_board(board)
     go Build_catalog(board)
+    go Build_rss("", "")
     go Build_rss(board, "")
     go Build_rss(board, parent)
     go Build_home()
