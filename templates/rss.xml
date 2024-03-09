@@ -16,8 +16,9 @@
         <guid isPermaLink="true">{{$postlink}}/{{.BoardN}}/{{.Parent}}.html#no{{.Id}}</guid>
 
         <description><![CDATA[
-        {{if .File}}<a href="{{$postlink}}/{{.BoardN}}/{{.File}}">
-        <img src="{{$postlink}}/{{if eq .Imgprev "audio_image.webp"}}resources/audio_image.webp{{else}}{{.BoardN}}/{{.Imgprev}}{{end}}"/></a>
+        {{if .File}}<a href="{{$postlink}}/{{.BoardN}}/Files/{{.File}}">
+        <img src="{{$postlink}}/{{if eq .Imgprev "audio_image.webp"}}resources/audio_image.webp
+        {{else}}{{.BoardN}}/Files/{{.Imgprev}}{{end}}"/></a>
         <br/><br/>{{end}}
         {{.Content}}]]></description>
     </item>{{end}}
