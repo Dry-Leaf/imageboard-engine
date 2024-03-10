@@ -375,6 +375,6 @@ pre+br {
 }
 
 .shift_jis {
-    font-family: IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona, 'MS Pgothic', 'MS Pゴシック';
+    font-family: 'MS Pgothic', 'MS Pゴシック', IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona;
     line-height: 1;
 }
