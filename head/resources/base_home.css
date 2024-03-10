@@ -6,6 +6,12 @@
     font-display: block;
 }
 
+@font-face {
+    font-family: "saitamaar";
+    src: url("Saitamaar.woff2") format("woff2");
+    font-display: block;
+}
+
 a {
     text-decoration: none;
 }

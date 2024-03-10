@@ -14,6 +14,12 @@
   font-display: block;
 }
 
+@font-face {
+  font-family: "saitamaar";
+  src: url("Saitamaar.woff2") format("woff2");
+  font-display: block;
+}
+
 :focus{
     outline: none;
 }
@@ -375,6 +381,7 @@ pre+br {
 }
 
 .shift_jis {
-    font-family: 'MS Pgothic', 'MS Pゴシック', IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona;
-    line-height: 1;
+    font-family: 'saitamaar', 'MS Pgothic', 'MS Pゴシック', IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona;
+    line-height: 15px;
+    font-size: 14px;
 }
