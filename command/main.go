@@ -9,6 +9,8 @@ import (
     "errors"
     "strings"
     "io/fs"
+    "net/http"
+    //"fmt"
 
     _ "github.com/mattn/go-sqlite3"
 )
@@ -39,13 +41,30 @@ func Time_report(entry string) {
 }
 
 func Delete_file(file_path, file_name, imgprev string) {
-    err := os.Remove(file_path + file_name)
-    if !errors.Is(err, fs.ErrNotExist) {Err_check(err)} 
-                
+    name_arr := []string{file_name}
     if imgprev != "" && !strings.HasSuffix(imgprev, "image.webp") {
-        err = os.Remove(file_path + imgprev)
-        if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
+        name_arr = append(name_arr, imgprev)
     }
+
+    if len(Purge_pass) > 0 {
+        for _, name := range name_arr {
+            err := os.Truncate(file_path + name, 0)
+            Err_check(err)
+    
+            url_path := SiteScheme + SiteName + "." + TLD + strings.TrimPrefix(file_path, BP + "head") + name
+            purge_req, err := http.NewRequest("GET", url_path, nil)
+            Err_check(err)
+            purge_req.Header.Set("purge-pass", Purge_pass)
+
+            client := &http.Client{}
+            _, err = client.Do(purge_req)
+            Err_check(err)
+
+            //fmt.Println(url_path)
+
+            err = os.Remove(file_path + name)
+            if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
+    }}
 }
 
 func main() {
@@ -69,8 +88,9 @@ func main() {
     }
     LatestSeed()
     Make_Conns()
-    go Clean(40 * time.Hour, "get_deleted", "delete_remove")
-    go Clean(10 * time.Minute, "get_expired_tokens", "delete_expired_token")
+    go Clean(40 * time.Hour, "get_deleted", "delete_remove", time.UnixDate)
+    go Clean(10 * time.Minute, "get_expired_tokens", "delete_expired_token", time.UnixDate)
+    go Clean(24 * time.Hour, "get_bans", "delete_ban", time.RFC1123)
 
     if URL_bl != "" {
         Get_bl()

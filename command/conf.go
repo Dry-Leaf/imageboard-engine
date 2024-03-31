@@ -9,8 +9,10 @@ import (
 )
 
 var SiteName string
+var SiteScheme string
 var TLD string
 var BP string
+var Purge_pass string
 var Max_request_size int64
 var boards []*ini.Key
 var Board_names []string
@@ -33,6 +35,8 @@ func Load_conf() {
     TLD = cfg.Section("").Key("tld").String()
     BP = cfg.Section("").Key("base path").String()
     URL_bl = cfg.Section("").Key("url blacklist").String()
+    Purge_pass = cfg.Section("").Key("purge pass").String()
+    SiteScheme = cfg.Section("").Key("scheme").String()
     Max_request_size, err = cfg.Section("").Key("max request size").Int64()
     Err_check(err)
     Max_upload_size = 1024 * 1024 * Max_request_size

@@ -109,6 +109,8 @@ const (
     delete_remove_string = `DELETE FROM deleted WHERE Identifier = ? AND TIME = ?`
     get_expired_tokens_string = `SELECT Token, Time FROM tokens`
     delete_expired_token_string = `DELETE FROM tokens WHERE Token = ? AND TIME = ?`
+    get_bans_string = `SELECT Identifier, Expiry FROM banned WHERE Expiry <> '-1'`
+    delete_ban_string = `DELETE FROM banned WHERE Identifier || Expiry = ? || ?`
 
     lock_check_string = `SELECT COALESCE(Locked, 0) AS Locked FROM posts WHERE Parent = ? AND Board = ?`
     lock_string = `UPDATE posts SET Locked = 1 WHERE Id = ? AND Board = ?`
@@ -130,6 +132,7 @@ var  WriteStrings = map[string]string{"newpost_wf": newpost_wfstring, "newpost_n
         "ban": ban_string, "delete_log": delete_log_string, 
         "ban_message": ban_message_string, "get_deleted": get_deleted_string, "delete_remove": delete_remove_string,
         "get_expired_tokens": get_expired_tokens_string, "delete_expired_token": delete_expired_token_string,
+        "get_bans": get_bans_string, "delete_ban": delete_ban_string,
         "lock_check": lock_check_string, "Lock": lock_string, "Unlock": unlock_string, "Pin": pin_string, "Unpin": unpin_string}
 
 func Checkout() map[string]*sql.Stmt {

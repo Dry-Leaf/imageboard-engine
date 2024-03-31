@@ -592,7 +592,7 @@ func Auto_delete() {
         }()
 }}
 
-func Clean(expiry time.Duration, get_string, remove_string string) {
+func Clean(expiry time.Duration, get_string, remove_string, time_format string) {
     for range time.Tick(expiry) {
         func() {
             new_conn := WriteConnCheckout()
@@ -611,7 +611,7 @@ func Clean(expiry time.Duration, get_string, remove_string string) {
                 var deleted_time string
                 err = deleted_rows.Scan(&deleted_identity, &deleted_time)
                 Err_check(err) 
-                deleted_actualt, err := time.Parse(time.UnixDate, deleted_time)
+                deleted_actualt, err := time.Parse(time_format, deleted_time)
                 Err_check(err) 
 
                 if deleted_actualt.Add(expiry).Before(time.Now().In(Nip)) {	
