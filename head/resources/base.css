@@ -385,3 +385,44 @@ pre+br {
     line-height: 15px;
     font-size: 14px;
 }
+
+.context-menu {
+    font-family: 'Segoe UI', 'system-ui';
+    font-size: 13px;
+    display: none; 
+    position: absolute;
+    background-color: ghostwhite;
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px; 
+    box-shadow: 0 0 4px hsla(0,0%,0%,.3);
+    border-radius: 4px;
+}
+
+.context-menu ul { 
+    padding: 0; 
+    margin: 0px; 
+    list-style: none; 
+} 
+
+.context-menu ul li {
+    padding-left: 10px;
+    padding-right: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-decoration: none;
+    user-select: none;
+}
+
+.context-menu ul li:hover { 
+    background-color: rgb(224,224,233);
+    cursor: default;
+}
+
+.oiint {
+    text-decoration: none;
+    font: inherit;
+    color: inherit;
+    cursor: default;
+    user-drag: none;
+}
