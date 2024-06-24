@@ -232,6 +232,9 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
             go Build_board(board)
             go Build_catalog(board)
             go Build_home()
+            go Build_rss(board, parents)
+            go Build_rss(board, "")
+            go Build_rss("", "")
         }
 
         http.Redirect(w, req, req.Header.Get("Referer"), 302)
@@ -582,12 +585,15 @@ func Auto_delete() {
             if update_posts {
                 for thread, _ := range threads_to_update {
                     go Build_thread(thread[0], thread[1])
+                    go Build_rss(thread[1], thread[0])
                 }
                 for board, _ := range boards_to_update {
                     go Build_board(board)
                     go Build_catalog(board)
+                    go Build_rss(board, "")
                 }
                 go Build_home()
+                go Build_rss("", "")
             }
         }()
 }}
