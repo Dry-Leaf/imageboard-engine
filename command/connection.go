@@ -245,12 +245,19 @@ func Make_Conns() {
         rss_collstmt, err := conn14.Prepare(rss_collstring)
         Err_check(err)
         
+        conn15, err := sql.Open("sqlite3", DB_uri)
+        Err_check(err)
+        
+        parent_checkstmt, err := conn15.Prepare(parent_checkstring)
+        Err_check(err)
+        
         read_stmts := map[string]*sql.Stmt{"prev": prev_stmt, "prev_parent": prev_parentstmt,
             "update": updatestmt, "update_rep": update_repstmt, "parent_coll": parent_collstmt,
             "thread_head": thread_headstmt, "thread_body": thread_bodystmt,
             "thread_coll": thread_collstmt,"subject_look": subject_lookstmt,
             "hp_coll": hp_collstmt, "ht_coll": ht_collstmt,
-            "shown_count": shown_countstmt, "total_count": total_countstmt, "rss_coll": rss_collstmt}
+            "shown_count": shown_countstmt, "total_count": total_countstmt, "rss_coll": rss_collstmt,
+            "parent_check": parent_checkstmt}
 
         readConns <- read_stmts
     }

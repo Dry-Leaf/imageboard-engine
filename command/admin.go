@@ -18,7 +18,8 @@ import (
 const (
     base_query_string = `SELECT ROWID, Board, Id, Content, Time, Parent, Identifier, COALESCE(File, '') AS File, 
             COALESCE(Filename, '') AS Filename,
-            COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') AS Imgprev, Option, Pinned, Locked FROM posts 
+            COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') AS Imgprev,
+            COALESCE(Hash, '') AS Hash, Option, Pinned, Locked FROM posts 
             WHERE Parent <> 0`
     query_cap = ` ORDER BY ROWID DESC`
 
@@ -468,7 +469,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
     for rows.Next() {
         var pst Post
         err = rows.Scan(&filler, &pst.BoardN, &pst.Id, &pst.Content, &pst.Time, &pst.Parent, &pst.Identifier, &pst.File,
-                        &pst.Filename, &pst.Fileinfo, &pst.Filemime, &pst.Imgprev, &pst.Option, &pst.Pinned, &pst.Locked)
+                        &pst.Filename, &pst.Fileinfo, &pst.Filemime, &pst.Imgprev, &pst.Hash, &pst.Option, &pst.Pinned, &pst.Locked)
         Err_check(err)
         most_recent = append(most_recent, &pst)
     }

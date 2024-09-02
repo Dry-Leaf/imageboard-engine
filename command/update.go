@@ -6,6 +6,7 @@ import (
     "strconv"
     "errors"
     "strings"
+    "time"
 
     _ "github.com/mattn/go-sqlite3"
 )
@@ -23,6 +24,7 @@ type Post struct {
     Fileinfo string
     Filemime string
     Imgprev string
+    Hash string
     Option string
     Pinned bool
     Locked bool
@@ -314,11 +316,25 @@ func Build_thread(parent string, board string) { //will accept argument for boar
 
 }
 
-func Build_rss(board, parent string) {
+func Build_rss(board, parent string) { 
+    time.Sleep(10 * time.Minute)
+
+    stmts := Checkout()
+    defer Checkin(stmts)      
+
+    parent_checkstmt := stmts["parent_check"]
+    var parent_result int
+
+    err := parent_checkstmt.QueryRow(parent, board).Scan(&parent_result)
+    Query_err_check(err)
+
+    if parent_result == 0 {return}
+
+    
     if len(parent) == 0 {parent = "rss"}
 
     rsstemp := template.New("rss.xml").Funcs(Filefuncmap)
-    rsstemp, err := rsstemp.ParseFiles(BP + "/templates/rss.xml")
+    rsstemp, err = rsstemp.ParseFiles(BP + "/templates/rss.xml")
     Err_check(err)
 
     path := BP + "head/" + board

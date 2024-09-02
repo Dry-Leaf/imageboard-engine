@@ -62,7 +62,8 @@ admbox threadwrap .post {
         <threadwrap>
             <box class="controls">
                 {{.BoardN}}
-                <div class="identifier">{{.Identifier}}</div>
+                <div class="identifier">{{.Identifier}}</div><br>
+                <div class="identifier">{{.Hash}}</div>
                 <form action="/im/mod/" enctype="multipart/form-data" method = "Post">
                     <input type="hidden" name="actiontype" value="on_posts">
                     <input type="hidden" name="parents" value="{{.Parent}}">
