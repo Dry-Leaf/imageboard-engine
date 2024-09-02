@@ -61,12 +61,8 @@ func Delete_file(file_path, file_name, imgprev string) {
 
             //fmt.Println(url_path)
 
-            log.Print("1")
-
             err = os.Remove(file_path + name)
             if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
-
-            log.Print("2")
     }}
 }
 
