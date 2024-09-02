@@ -99,11 +99,11 @@ func main() {
     go Auto_delete()
 
     Build_home()
-    Build_rss("", "")
+    go Build_rss("", "")
     for board, _ := range Board_map{
         Build_board(board)
         Build_catalog(board)
-        Build_rss(board, "")
+        go Build_rss(board, "")
     }
     Listen()
 }

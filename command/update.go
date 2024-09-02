@@ -316,12 +316,12 @@ func Build_thread(parent string, board string) { //will accept argument for boar
 
 }
 
-func Build_rss(board, parent string) { 
+func Build_rss(board, parent string) {
+    time.Sleep(10 * time.Minute)
+    
     if len(parent) == 0 {
         parent = "rss"
     } else {
-        time.Sleep(10 * time.Minute)
-
         stmts := Checkout()
         defer Checkin(stmts)      
 
