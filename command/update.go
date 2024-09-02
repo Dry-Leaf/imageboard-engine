@@ -316,9 +316,11 @@ func Build_thread(parent string, board string) { //will accept argument for boar
 
 }
 
-func Build_rss(board, parent string) {
-    time.Sleep(10 * time.Minute)
-    
+func Build_rss(board, parent string, newpost ...bool) {
+    if len(newpost) > 0 {
+        time.Sleep(7 * time.Minute)
+    }
+
     if len(parent) == 0 {
         parent = "rss"
     } else {

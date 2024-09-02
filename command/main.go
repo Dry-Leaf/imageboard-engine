@@ -49,7 +49,7 @@ func Delete_file(file_path, file_name, imgprev string) {
     if len(Purge_pass) > 0 {
         for _, name := range name_arr {
             err := os.Truncate(file_path + name, 0)
-            Err_check(err)
+            if err != nil {continue}
     
             url_path := SiteScheme + SiteName + "." + TLD + strings.TrimPrefix(file_path, BP + "head") + name
             purge_req, err := http.NewRequest("GET", url_path, nil)
@@ -57,13 +57,16 @@ func Delete_file(file_path, file_name, imgprev string) {
             purge_req.Header.Set("purge-pass", Purge_pass)
 
             client := &http.Client{}
-            _, err = client.Do(purge_req)
-            Err_check(err)
+            client.Do(purge_req)
 
             //fmt.Println(url_path)
 
+            log.Print("1")
+
             err = os.Remove(file_path + name)
             if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
+
+            log.Print("2")
     }}
 }
 
@@ -99,11 +102,11 @@ func main() {
     go Auto_delete()
 
     Build_home()
-    go Build_rss("", "")
+    Build_rss("", "")
     for board, _ := range Board_map{
         Build_board(board)
         Build_catalog(board)
-        go Build_rss(board, "")
+        Build_rss(board, "")
     }
     Listen()
 }

@@ -10,6 +10,7 @@ import (
     "database/sql"
     "text/template"
     "context"
+    "log"
     //"fmt"
 
     "github.com/google/uuid"
@@ -297,6 +298,8 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
 
 func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
+    log.Print("0")
+    
     get_files_stmt := WriteStrings["get_files"]
     isparent_stmt := WriteStrings["isparent"]
     
@@ -314,6 +317,8 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
             file_path := BP + "head/" + board + "/Files/"
             Delete_file(file_path, file_name, imgprev)
     }}
+
+    log.Print("3")
     
     var pcheck bool
     pcheck_row := new_tx.QueryRowContext(ctx, isparent_stmt, id, board)
@@ -323,6 +328,8 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
             Delete_file(file_path, id + ".html", "")
             Delete_file(file_path, id + ".xml", "")
     }
+
+    log.Print("4")
 
     delete_post_stmt := WriteStrings["delete_post"]
     _, err = new_tx.ExecContext(ctx, delete_post_stmt, id, board)
