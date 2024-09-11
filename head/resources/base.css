@@ -324,17 +324,23 @@ pre+br {
     padding-left: 10px;
 }
 
-.omitted {
-    color: rgb(100, 100, 100);
-    font-size: 10pt;
+.omitted, .truncmess {
+    filter: invert(30%);
+    font-size: 9pt;
+}
+
+.truncmess {
+    margin-top: 15px;
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+.truncmess > a, .editmessage {
+    font-size: 9pt;
 }
 
 .banmessage {
     color: rgb(209, 17, 65);
-}
-
-.editmessage {
-    font-size: 7pt;
 }
 
 .editmessage ~ br {

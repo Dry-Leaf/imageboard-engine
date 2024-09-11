@@ -2,13 +2,18 @@
     <postwrap>
         <div id="no{{.Id}}" class="post">
 
-                    <label class="{{.Option}}"><time>{{.Time}}</time> <selfref><a href="{{.Parent}}.html#no{{.Id}}">No. </a><a class="plink" href="#newpost">{{.Id}}</a></selfref>{{if .Replies}}{{range .Replies}}<ref class="reply"><a href="#no{{.}}">&gt;&gt;{{.}}</a></ref>{{end}}{{end}}</label>
+                    <label class="{{.Option}}"><time>{{.Time}}</time> <selfref><a href="{{.Parent}}.html#no{{.Id -}}
+                    ">No. </a><a class="plink" href="#newpost">{{.Id}}</a></selfref>{{if .Replies -}}
+                        {{range .Replies}}
+                        <ref class="reply"><a href="#no{{.}}">&gt;&gt;{{.}}</a></ref>{{end}}{{end}}</label>
                     <br>
-                    {{if .File}}<label>File <a href="Files/{{.File}}" download="{{.Filename}}">{{.Filename}}</a> - ({{.Fileinfo}})</label>
+                    {{if .File}}<label>File <a href="Files/{{.File}}" download="{{.Filename}}">{{.Filename -}}
+                    </a> - ({{.Fileinfo}})</label>
                     <br>
                     {{if avcheck .Filemime}}<video preload="none" controls poster={{if eq .Imgprev "audio_image.webp"}}'/resources/audio_image.webp'{{else}}'/{{.BoardN}}/Files/{{.Imgprev}}'{{end}}><source src='/{{.BoardN}}/Files/{{.File}}' type= '{{.Filemime}}'></video>{{else}}<input type="checkbox" class="image imspec p{{.Id}}" autocomplete="off"/>{{end}}{{end}}
-                    {{if .Content}}<div class="pcontent">{{.Content}}</div>{{end}}
-
+                    {{if .Content}}<div class="pcontent">{{if and .OnBoard (gt (len .Content) 2000)}}{{printf "%.2000s..." .Content -}}
+                    </div><div class="truncmess">Post too long. Click <a href="{{.Parent}}.html#no{{.Id -}}
+                    ">here</a> to view the full text.{{else}}{{.Content}}{{end}}</div>{{end}}
         </div>
     </postwrap>
 {{end}}

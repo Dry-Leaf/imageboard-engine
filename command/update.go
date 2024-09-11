@@ -28,8 +28,9 @@ type Post struct {
     Option string
     Pinned bool
     Locked bool
-	Anchored bool
+    Anchored bool
     Replies []int
+    OnBoard bool
 }
 
 type Thread struct {
@@ -161,7 +162,8 @@ func get_threads(board string) []*Thread {
 
         for thread_rows.Next() {
             var cpst Post
-			cpst.BoardN = board
+	    cpst.BoardN = board
+	    cpst.OnBoard = true
 
             err = thread_rows.Scan(&cpst.Id, &cpst.Content, &cpst.Time, &cpst.Parent, &cpst.File,
                 &cpst.Filename, &cpst.Fileinfo, &cpst.Filemime, &cpst.Imgprev, &cpst.Option)
@@ -217,7 +219,7 @@ func get_posts(parent string, board string) ([]*Post, error) {
 
     for rows.Next() {
         var pst Post
-		pst.BoardN = board
+	pst.BoardN = board
 		
         err = rows.Scan(&pst.Id, &pst.Content, &pst.Time, &pst.Parent, &pst.File,
             &pst.Filename, &pst.Fileinfo, &pst.Filemime, &pst.Imgprev, &pst.Option, &pst.Pinned, &pst.Locked, &pst.Anchored)

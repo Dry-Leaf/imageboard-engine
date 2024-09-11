@@ -49,7 +49,7 @@ function ImContext (e) {
 
         image_style = window.getComputedStyle(e.target);
         image_url = url_regex.exec(image_style.getPropertyValue("content"))[1];
-        image_name = image_style.getPropertyValue("--name");
+        image_name = image_style.getPropertyValue('--name');
 
         oiint.setAttribute("href", image_url);
         sia.setAttribute("href", image_url);
