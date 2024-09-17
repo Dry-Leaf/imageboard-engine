@@ -10,6 +10,7 @@ import (
 
 const (
     createPostsTableSQL = `CREATE TABLE posts (
+        "Insertorder" INTEGER PRIMARY KEY ASC,
         "Board" TEXT NOT NULL,
         "Id" INTEGER NOT NULL,
         "Content" TEXT,
@@ -29,7 +30,7 @@ const (
         "Pinned" INTEGER NOT NULL,
         "Locked" INTEGER NOT NULL,
         "Anchored" INTEGER NOT NULL,
-        PRIMARY KEY (Board, Id)
+        UNIQUE (Board, Id)
     );`
 
     createRepliesTableSQL = `CREATE TABLE replies (
@@ -53,6 +54,7 @@ const (
     );`
 
     createHomePostTableSQL = `CREATE TABLE homepost (
+        "Insertorder" INTEGER PRIMARY KEY ASC,
         "Board" TEXT NOT NULL,
         "Id" INTEGER NOT NULL,
         "Content" TEXT NOT NULL,
@@ -63,6 +65,7 @@ const (
     );`
 
     createHomeThumbTableSQL = `CREATE TABLE homethumb (
+        "Insertorder" INTEGER PRIMARY KEY ASC,
         "Board" TEXT NOT NULL,
         "Id" INTEGER NOT NULL,
         "Parent" TEXT NOT NULL,
@@ -84,6 +87,7 @@ const (
     );`
 
     createBannedTableSQL = `CREATE TABLE banned (
+        "Insertorder" INTEGER PRIMARY KEY ASC,
         "Identifier" TEXT NOT NULL,
         "Expiry" TEXT NOT NULL,
         "Mod" TEXT NOT NULL,
