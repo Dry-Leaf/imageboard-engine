@@ -33,7 +33,8 @@
 <hr>
 
 <a class="navi" href="/{{.BoardN}}/">Return</a>
-<a class="navi" href="/{{.BoardN}}/catalog.html">Catalog</a><br><br>
+<a class="navi" href="/{{.BoardN}}/catalog.html">Catalog</a>
+<a class="navi" href="#newpost">Write</a><br><br>
 {{if .Posts}}{{$sub:= .Subject}}{{range slice .Posts 0 1}}
         <threadwrap>
             <div id="no{{.Id}}" class="thread">
