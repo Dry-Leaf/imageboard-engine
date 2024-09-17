@@ -16,12 +16,12 @@ import (
 )
 
 const (
-    base_query_string = `SELECT ROWID, Board, Id, Content, Time, Parent, Identifier, COALESCE(File, '') AS File, 
+    base_query_string = `SELECT Insertorder, Board, Id, Content, Time, Parent, Identifier, COALESCE(File, '') AS File, 
             COALESCE(Filename, '') AS Filename,
             COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') AS Imgprev,
             COALESCE(Hash, '') AS Hash, Option, Pinned, Locked FROM posts 
             WHERE Parent <> 0`
-    query_cap = ` ORDER BY ROWID DESC`
+    query_cap = ` ORDER BY Insertorder DESC`
 
     ban_log_query_string = `SELECT Identifier, Expiry, Mod, IIF(Expiry <> '-1', Content, 'something heinous') as Content, Reason FROM banned`
     delete_log_query_string = `SELECT Identifier, Time, Mod, Content, Reason FROM deleted`
@@ -630,6 +630,14 @@ func Clean(expiry time.Duration, get_string, remove_string, time_format string) 
             Err_check(err)
         }()
 }}
+
+func DB_optomize() {
+    new_conn := WriteConnCheckout()
+    defer WriteConnCheckin(new_conn)
+
+    new_conn.Exec("VACUUM")
+    new_conn.Exec("PRAGMA optimize")
+}
 
 func Load_log(w http.ResponseWriter, req *http.Request) {
     userSession := Logged_in_check(w, req)

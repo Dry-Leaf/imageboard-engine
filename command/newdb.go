@@ -128,17 +128,17 @@ const (
     trimHomePostStack = `CREATE TRIGGER homepost_trim
         AFTER INSERT ON homepost
         BEGIN
-            DELETE FROM homepost WHERE ROWID =
+            DELETE FROM homepost WHERE Insertorder =
                 IIF((SELECT COUNT(Id) FROM homepost) > 20,
-                (SELECT min(ROWID) from homepost), NULL);
+                (SELECT min(Insertorder) from homepost), NULL);
         END;`
 
     trimHomeThumbStack = `CREATE TRIGGER homethumb_trim
         AFTER INSERT ON homethumb
         BEGIN
-            DELETE FROM homethumb WHERE ROWID =
+            DELETE FROM homethumb WHERE Insertorder =
                 IIF((SELECT COUNT(Id) FROM homethumb) > 10,
-                (SELECT min(ROWID) from homethumb), NULL);
+                (SELECT min(Insertorder) from homethumb), NULL);
         END;`
         
         

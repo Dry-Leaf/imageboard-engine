@@ -206,6 +206,7 @@ pre+br {
     margin-top: 10px;
     line-height: 1.5em;
     text-wrap: balance;
+    max-width: 100ch;
 }
 
 .prevcontent {

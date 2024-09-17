@@ -85,6 +85,7 @@ func main() {
         New_db()
         Admin_init()
     }
+
     LatestSeed()
     Make_Conns()
     go Clean(40 * time.Hour, "get_deleted", "delete_remove", time.UnixDate)

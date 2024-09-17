@@ -43,7 +43,7 @@ const (
     total_countstring = `Select COUNT(*), COUNT(File) FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2`
     rss_collstring = `SELECT Id, Board, Content, Parent, COALESCE(File, '') AS File, COALESCE(Imgprev, '') Imgprev
                           FROM posts WHERE (Board = ?1 OR ?1 = "home") AND (Parent = ?2 OR ?2 = "rss")
-                          ORDER BY ROWID DESC LIMIT 20`
+                          ORDER BY Insertorder DESC LIMIT 20`
 
     //all inserts(and necessary queries) are preformed in one transaction 
     newpost_wfstring = `INSERT INTO posts(Board, Id, Content, Time, Parent, Identifier, File, Filename, Fileinfo, Filemime, Imgprev, Hash,
@@ -80,7 +80,7 @@ const (
     remove_user_string = `DELETE FROM credentials WHERE Username = ? AND Type <> 0`
     search_user_string = `SELECT Hash, Type FROM credentials WHERE Username = ?`
 
-    ban_search_string = `SELECT Expiry, Reason FROM banned WHERE Identifier = ? ORDER BY ROWID ASC`
+    ban_search_string = `SELECT Expiry, Reason FROM banned WHERE Identifier = ? ORDER BY Insertorder ASC`
     ban_remove_string = `DELETE FROM banned WHERE Identifier = ? AND Expiry = ?`
 
     get_files_string = `SELECT COALESCE(File, '') AS File, COALESCE(Imgprev, '') AS Imgprev FROM posts WHERE (Id = ?1 OR Parent = ?1) AND Board = ?2`
@@ -218,13 +218,13 @@ func Make_Conns() {
         conn10a, err := sql.Open("sqlite3", DB_uri)
         Err_check(err)
 
-        hp_collstmt, err := conn10a.Prepare("SELECT * FROM homepost ORDER BY ROWID DESC")
+        hp_collstmt, err := conn10a.Prepare("SELECT Board, Id, Content, TrunContent, Parent, Password FROM homepost ORDER BY Insertorder DESC")
         Err_check(err)
 
         conn10b, err := sql.Open("sqlite3", DB_uri)
         Err_check(err)
 
-        ht_collstmt, err := conn10b.Prepare("SELECT * FROM homethumb ORDER BY ROWID DESC LIMIT 6")
+        ht_collstmt, err := conn10b.Prepare("SELECT Board, Id, Parent, Imgprev, Password FROM homethumb ORDER BY Insertorder DESC LIMIT 6")
         Err_check(err)
 
         conn12, err := sql.Open("sqlite3", DB_uri)
