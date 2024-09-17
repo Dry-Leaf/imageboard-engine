@@ -23,3 +23,17 @@ async function GetPostData (e) {
             '<box class="prev">' + text + '</box>')
     });
 }
+
+const thumbs = document.querySelectorAll('input.image');
+
+thumbs.forEach(thumb => thumb.addEventListener('contextmenu', ImContext, false));
+
+const url_regex = /url\("([^"]+)"\)/;
+
+function ImContext(e) {
+    event.preventDefault();
+    image_style = window.getComputedStyle(e.target);
+    imgsrc = url_regex.exec(image_style.getPropertyValue("content"))[1];
+
+    window.open(imgsrc, '_blank');
+}
