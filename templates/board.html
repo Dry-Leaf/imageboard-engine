@@ -33,7 +33,7 @@
 <hr>
 
 <a class="navi" href="/{{.Name}}/catalog.html">Catalog</a>
-<a class="navi" href="#newpost">Write</a><br><br>
+<a class="navi" href="#newpost">New</a><br><br>
 {{if .Threads}}{{range .Threads}}{{$sub:= .Subject}}{{$op:= .OmittedPosts}}{{$of:= .OmittedFiles}}{{if .Posts}}{{range slice .Posts 0 1}}
         <threadwrap>
             <div id="no{{.Id}}" class="thread">
