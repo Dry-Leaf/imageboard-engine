@@ -42,7 +42,7 @@ func Time_report(entry string) {
 
 func Delete_file(file_path, file_name, imgprev string) {
     name_arr := []string{file_name}
-    if imgprev != "" && !strings.HasSuffix(imgprev, "image.webp") {
+    if imgprev != "" && !strings.HasSuffix(imgprev, "image") {
         name_arr = append(name_arr, imgprev)
     }
 

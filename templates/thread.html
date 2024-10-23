@@ -16,7 +16,7 @@
 <style>{{$name := .BoardN}}
 {{range .Posts}}{{if .File}}{{if imagecheck .Filemime}}{{if ne .Imgprev "deleted"}}
 .p{{.Id}} {--mini: url('/{{$name}}/Files/{{.Imgprev}}'); --maxi: url('/{{$name}}/Files/{{.File}}');}{{else}}
-.p{{.Id}} {--mini: url('/resources/deleted_image.webp'); --maxi: url('/resources/deleted_image.webp');}{{end}}{{end}}{{end}}{{end}}
+.p{{.Id}} {--mini: url('/resources/deleted_image'); --maxi: url('/resources/deleted_image');}{{end}}{{end}}{{end}}{{end}}
 </style>
 </head>
 
@@ -27,7 +27,7 @@
 </p><br>
 
 <center>
-<img class="bannerimg" src="/resources/banners/cbanner.webp" height="100" width="300">
+<img class="bannerimg" src="/resources/banners/cbanner" height="100" width="300">
 <p class="boardinfo">/{{.BoardN}}/ - {{.BoardDesc}}</p>
 </center>
 <hr>
@@ -41,7 +41,7 @@
 
                     <label>File <a href="Files/{{.File}}" download="{{.Filename}}">{{.Filename}}</a> - ({{.Fileinfo}})</label>
                     <br>
-                    {{if avcheck .Filemime}}<video preload="none" controls poster={{if eq .Imgprev "audio_image.webp"}}'/resources/audio_image.webp'{{else}}'/{{$name}}/Files/{{.Imgprev}}'{{end}}><source src='/{{$name}}/Files/{{.File}}' type= '{{.Filemime}}'></video>{{else}}<input type="checkbox" class="image imspec p{{.Id}}" autocomplete="off"/>{{end}}
+                    {{if avcheck .Filemime}}<video preload="none" controls poster={{if eq .Imgprev "audio_image"}}'/resources/audio_image'{{else}}'/{{$name}}/Files/{{.Imgprev}}'{{end}}><source src='/{{$name}}/Files/{{.File}}' type= '{{.Filemime}}'></video>{{else}}<input type="checkbox" class="image imspec p{{.Id}}" autocomplete="off"/>{{end}}
                     <label class="{{.Option}}">{{if $sub}}<subject>{{$sub}}</subject>{{end}} <time>{{.Time}}</time> <selfref><a href="#no{{.Id}}">No. </a><a class="plink" href="#newpost">{{.Id}}</a></selfref>{{if .Pinned}}<div class="pin"></div>{{end}}{{if .Locked}}<div class="lock"></div>{{end}}{{if .Anchored}}<div class="anchor"></div>{{end}}</label>
                     <div class="pcontent">{{.Content}}</div>
 

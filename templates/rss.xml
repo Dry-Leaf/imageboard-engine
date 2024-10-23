@@ -17,7 +17,7 @@
 
         <description><![CDATA[
         {{if .File}}<a href="{{$postlink}}/{{.BoardN}}/Files/{{.File}}">
-        <img src="{{$postlink}}/{{if eq .Imgprev "audio_image.webp"}}resources/audio_image.webp
+        <img src="{{$postlink}}/{{if eq .Imgprev "audio_image"}}resources/audio_image
         {{else}}{{.BoardN}}/Files/{{.Imgprev}}{{end}}"/></a>
         <br/><br/>{{end}}
         {{.Content}}]]></description>

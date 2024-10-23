@@ -26,7 +26,7 @@ const (
         {{if .Filemime}}<label>File <a href="/">{{.Filename}}</a> - ({{.Fileinfo}})</label><br>{{end}}
         <div class="prevcontent">
         {{if .Imgprev}}{{if audiocheck .Filemime}}
-        <img class="imspec" src="/resources/audio_image.webp">
+        <img class="imspec" src="/resources/audio_image">
         {{else}}<img class="imspec" src="/{{.Board}}/Files/{{.Imgprev}}">{{end}}{{end}}
         {{.Content}}</div>`
 )

@@ -11,5 +11,7 @@
 *.log
 *.pprof
 *.ico
+*logo
+*image
 /head/*/*.html
 
