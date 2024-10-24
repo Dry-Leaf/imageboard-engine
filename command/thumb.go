@@ -33,7 +33,7 @@ func Make_thumb(file_path, file_pre string, file_buffer []byte, max_dim int) (in
     hash, err := gih.PerceptionHash(img)
     Err_check(err)
 
-    bimg.Write(file_path + file_pre + "s.webp", newImage)
+    bimg.Write(file_path + file_pre + "s", newImage)
 
     return file_dim.Width, file_dim.Height, hash.ToString(), nil
 }

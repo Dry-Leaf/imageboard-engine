@@ -311,7 +311,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
 
                             _, _, _, cerr := Make_thumb(file_path, file_pre, cover_buffer.Bytes(), 300)
                             if cerr != nil {
-                                file_pre = "audio_image.webp"
+                                file_pre = "audio_image"
                             } else {
                                 file_pre += "s"
                             }
