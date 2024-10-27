@@ -7,6 +7,7 @@ import (
     "errors"
     "strings"
     "time"
+    "math/rand"
 
     _ "github.com/mattn/go-sqlite3"
 )
@@ -44,6 +45,7 @@ type Thread struct {
     OmittedPosts int
     OmittedFiles int
     SThemes []string
+    Captcha_list []string
 }
 
 type Board struct {
@@ -53,6 +55,7 @@ type Board struct {
     Header []string
     HeaderDescs []string
     SThemes []string
+    Captcha_list []string
 }
 
 type RSS struct {
@@ -80,6 +83,9 @@ var Filefuncmap = template.FuncMap {
     "videocheck": func(filemime string) bool {
         if strings.HasPrefix(filemime, "video") {return true}
         return false
+    },
+    "captcha" : func() int {
+        return rand.Intn(len(Captchas))
     },
 }
 
@@ -282,7 +288,7 @@ func Build_board(board string) {
     threads := get_threads(board)
 
     cboard := Board{Name: board,  Desc: Board_map[board],Threads: threads,
-        Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
+        Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes, Captcha_list: Captchas}
     boardtemp.Execute(f, cboard)
 }
 
@@ -308,10 +314,10 @@ func Build_thread(parent string, board string) { //will accept argument for boar
         if sub != "" {
             thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board],
                 Posts: posts, Subject: sub,
-                Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
+                Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes, Captcha_list: Captchas}
         } else {
             thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board], Posts: posts, 
-            Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
+            Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes, Captcha_list: Captchas}
         }
         threadtemp.Execute(f, thr)
     }

@@ -10,6 +10,7 @@ import (
     "strconv"
     "bytes"
     "context"
+    "slices"
     "image/png"
     "database/sql"
 
@@ -141,7 +142,25 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                     case userSession.acc_type == Maid:
                         option += " maid"
                 }   
-    }}}
+    }}} else {
+        captcha_num := req.FormValue("captcha_num")
+        captcha_attempt := req.FormValue("cpt")
+        if captcha_num != "" {
+            cn, err := strconv.Atoi(captcha_num)
+            if err != nil {
+                http.Error(w, "Invalid captcha.", http.StatusBadRequest)
+                return
+            }
+            if cn > len(Captchas) - 1 || cn < 0 {
+                http.Error(w, "Captcha # out of range.", http.StatusBadRequest)
+                return
+            }
+            if !slices.Contains(Captcha_answers[cn], strings.ToLower(captcha_attempt)) {
+                http.Error(w, "Captcha failed.", http.StatusBadRequest)
+                return
+            }
+        }
+    }
 
     //begin transaction
     new_conn := WriteConnCheckout()

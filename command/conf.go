@@ -25,6 +25,8 @@ var Word_filter = make(map[*regexp.Regexp]string)
 var Forbidden = make(map[string]bool)
 var URL_bl string
 var Auto_phrases []string
+var Captchas []string
+var Captcha_answers [][]string
 
 func Load_conf() { 
     cfg, err := ini.LoadSources(
@@ -66,6 +68,11 @@ func Load_conf() {
    fhashes := cfg.Section("forbidden").KeyStrings()
    for _, h := range fhashes {
        Forbidden[`p:` + h] = true
+   }
+
+   Captchas = cfg.Section("captcha").KeyStrings()
+   for _, q := range Captchas {
+       Captcha_answers = append(Captcha_answers, cfg.Section("captcha").Key(q).Strings(","))
    }
 
    Themes = cfg.Section("misc").Key("themes").Strings(" ")

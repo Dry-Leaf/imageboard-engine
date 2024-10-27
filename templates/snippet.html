@@ -27,6 +27,9 @@
         <td class="ogdc">Password</td>
         <td><input type="password" name="pwd" value="<password>">
         <small>(for post editing)</small></td>
+        </tr><tr>{{$captcha_num := captcha}}
+        <td class="ogdc">Captcha<input type="hidden" name="captcha_num" value="{{$captcha_num}}"></td>
+        <td>{{index .Captcha_list $captcha_num}}<br><input type="password" name="cpt"></td>
         </tr><tr>
         <td class="ogdc">Submit</td>
 {{end}}

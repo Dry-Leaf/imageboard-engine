@@ -60,7 +60,7 @@
         <td class="ogdc">Subject</td>
         <td><input name="subject" type="text" value=""></td>
         </tr><tr>
-        {{template "newform"}}
+        {{template "newform" .}}
 		<td><input type="submit" value="Submit">
 		<input type="submit" name="option" value="Edit" formaction="/im/user/?board={{.Name}}"></td>
         </tr>
