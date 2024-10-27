@@ -56,7 +56,8 @@
     <form action="/im/post/?parent={{.TId}}&board={{.BoardN}}" enctype="multipart/form-data" method="Post" autocomplete="on">
         <table><tbody>
         <tr>
-        {{template "newform" .}}
+        {{template "newform"}}
+                <td class="ogdc">Submit</td>
 		<td><input type="submit" value="Reply">
 		<input type="submit" name="option" value="Sage">
 		<input type="submit" name="option" value="Edit" formaction="/im/user/?board={{.BoardN}}"></td>

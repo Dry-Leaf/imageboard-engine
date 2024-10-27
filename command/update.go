@@ -45,7 +45,6 @@ type Thread struct {
     OmittedPosts int
     OmittedFiles int
     SThemes []string
-    Captcha_list []string
 }
 
 type Board struct {
@@ -314,10 +313,10 @@ func Build_thread(parent string, board string) { //will accept argument for boar
         if sub != "" {
             thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board],
                 Posts: posts, Subject: sub,
-                Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes, Captcha_list: Captchas}
+                Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
         } else {
             thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board], Posts: posts, 
-            Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes, Captcha_list: Captchas}
+            Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
         }
         threadtemp.Execute(f, thr)
     }
