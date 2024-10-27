@@ -5,14 +5,11 @@
 
 body {
     background-color: rgb(253, 240, 241);
+    color: rgb(115, 13, 18);
 }
 
 a, summary {
     color: rgb(216, 68, 36);
-}
-
-p, .pcontent, label, postwrap, .thread postwrap::before, .pin, .lock, .anchor, .deletetext {
-    color: rgb(115, 13, 18);
 }
 
 subject {

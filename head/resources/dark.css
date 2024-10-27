@@ -1,13 +1,10 @@
 body {
     background-color: rgb(30, 30, 30);
+    color: #999999;
 }
 
 a, summary {
     color: #99225c;
-}
-
-p, td, .pcontent, label, postwrap, .thread postwrap::before, .ogdc, small, input[type=file], .ficon, .pin, .lock, .anchor, .deletetext {
-    color: #999999;
 }
 
 subject, .sage time {
