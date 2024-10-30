@@ -104,7 +104,7 @@ func Get_subject(parent, board string) string {
 
     var subject string
 
-    subject_look_stmt := stmts["subject_look"]
+    subject_look_stmt := stmts[subject_look_stmt]
     err := subject_look_stmt.QueryRow(parent, board).Scan(&subject)
     Query_err_check(err)
 
@@ -120,11 +120,11 @@ func Get_omitted(parent, board string) (int, int) {
     var shown_posts int
     var shown_files int
 
-    total_countstmt := stmts["total_count"]
+    total_countstmt := stmts[total_count_stmt]
     err := total_countstmt.QueryRow(board, parent).Scan(&total_posts, &total_files)
     Query_err_check(err)
 
-    shown_countstmt := stmts["shown_count"]
+    shown_countstmt := stmts[shown_count_stmt]
     err = shown_countstmt.QueryRow(board, parent).Scan(&shown_posts, &shown_files)
     Query_err_check(err)
 
@@ -136,10 +136,10 @@ func get_threads(board string) []*Thread {
     stmts := Checkout()
     defer Checkin(stmts)
 
-    parent_coll_stmt := stmts["parent_coll"]
-    thread_head_stmt := stmts["thread_head"]
-    thread_body_stmt := stmts["thread_body"]
-    update_rep_stmt := stmts["update_rep"]
+    parent_coll_stmt := stmts[parent_coll_stmt]
+    thread_head_stmt := stmts[thread_head_stmt]
+    thread_body_stmt := stmts[thread_body_stmt]
+    update_rep_stmt := stmts[update_rep_stmt]
 
     var board_body []*Thread
 
@@ -213,8 +213,8 @@ func get_posts(parent string, board string) ([]*Post, error) {
     stmts := Checkout()
     defer Checkin(stmts)
 
-    update_stmt := stmts["update"]
-    update_rep_stmt := stmts["update_rep"]
+    update_stmt := stmts[update_stmt]
+    update_rep_stmt := stmts[update_rep_stmt]
 
     rows, err := update_stmt.Query(parent, board)
     Err_check(err)
@@ -252,7 +252,7 @@ func get_rss(board, parent string) []*Post {
     stmts := Checkout()
     defer Checkin(stmts)
 
-    rss_coll_stmt := stmts["rss_coll"]
+    rss_coll_stmt := stmts[rss_coll_stmt]
 
     rows, err := rss_coll_stmt.Query(board, parent)
     Err_check(err)
@@ -334,7 +334,7 @@ func Build_rss(board, parent string, newpost ...bool) {
         stmts := Checkout()
         defer Checkin(stmts)      
 
-        parent_checkstmt := stmts["parent_check"]
+        parent_checkstmt := stmts[parent_check_stmt]
         var parent_result int
 
         err := parent_checkstmt.QueryRow(parent, board).Scan(&parent_result)

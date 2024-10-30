@@ -68,8 +68,8 @@ func get_cat_posts(board string) ([]*Post, []string) {
     stmts := Checkout()
     defer Checkin(stmts)
 
-    thread_collstmt := stmts["thread_coll"]
-    thread_headstmt := stmts["thread_head"]
+    thread_collstmt := stmts[thread_coll_stmt]
+    thread_headstmt := stmts[thread_head_stmt]
 
     var cat_body []*Post
     var subjects []string
@@ -100,8 +100,8 @@ func get_home() ([]*Hp, []*Ht) {
     stmts := Checkout()
     defer Checkin(stmts)
 
-    hp_collstmt := stmts["hp_coll"]
-    ht_collstmt := stmts["ht_coll"]
+    hp_collstmt := stmts[hp_coll_stmt]
+    ht_collstmt := stmts[ht_coll_stmt]
 
     var home_posts []*Hp
     var home_thumbs []*Ht

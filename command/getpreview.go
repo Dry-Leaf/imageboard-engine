@@ -47,7 +47,7 @@ func Get_prev(w http.ResponseWriter, req *http.Request) {
 
     stmts := Checkout()
     defer Checkin(stmts)
-    stmt := stmts["prev"]
+    stmt := stmts[prev_stmt]
 
     var data string
     var temp bytes.Buffer

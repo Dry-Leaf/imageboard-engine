@@ -82,7 +82,7 @@ func process(rawline, board, orig_parent string) (string, []string) {
 
     stmts := Checkout()
     defer Checkin(stmts)
-    stmt := stmts["prev_parent"]
+    stmt := stmts[prev_parent_stmt]
 
     repmatches := make([]string, 0)
     repparents := make([]string, 0)

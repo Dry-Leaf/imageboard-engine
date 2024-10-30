@@ -6,45 +6,11 @@ import (
 )
 
 const Max_conns = 5
-var readConns = make(chan map[string]*sql.Stmt, Max_conns)
+var readConns = make(chan []*sql.Stmt, Max_conns)
 var writeConn = make(chan *sql.DB, 1) 
 
 //statement strings
 const (
-    prev_str = `SELECT Content, Time, COALESCE(Filename, '') Filename, COALESCE(Fileinfo, '') Fileinfo, COALESCE(Filemime, '') Filemime,
-            COALESCE(Imgprev, '') Imgprev, Option FROM posts WHERE Id = ? AND Board = ?`
-    prev_parent_str = `SELECT Parent FROM posts WHERE Id = ? AND Board = ?`
-    update_str = `SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
-                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option, 
-                Pinned, Locked, Anchored
-                FROM posts WHERE Parent = ? AND Board = ?`
-    update_rep_str = `SELECT Replier FROM replies WHERE Source = ? AND Board = ?`
-    parent_coll_str = `WITH temp (TParent, Id) AS (SELECT Parent, MAX(Id) FROM posts WHERE ((instr(Option, 'Sage') = 0 AND Anchored <> 1) OR Id = Parent) AND Board = ?1
-            GROUP BY Parent ORDER BY MAX(Id) DESC),
-        temp2(Parent, Pinned) AS (SELECT Parent, Pinned FROM posts WHERE Id = Parent AND Board = ?1)
-        SELECT Parent, Id FROM temp INNER JOIN temp2 ON temp.TParent = temp2.Parent ORDER BY Pinned DESC, Id DESC LIMIT 15`
-    thread_head_str = `SELECT Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
-                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option,
-                Pinned, Locked, Anchored
-                FROM posts WHERE Id = ? AND Board = ?`
-    thread_body_str = `SELECT * FROM (
-                SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
-                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option FROM posts 
-                WHERE Parent = ? AND Board = ? AND Id != Parent ORDER BY Id DESC LIMIT 5)
-                ORDER BY Id ASC`
-    thread_coll_str = `WITH temp (TParent, Id) AS (SELECT Parent, MAX(Id) FROM posts WHERE ((instr(Option, 'Sage') = 0 AND Anchored <> 1) OR Id = Parent) AND Board = ?1
-            GROUP BY Parent ORDER BY MAX(Id) DESC),
-        temp2(Parent, Pinned) AS (SELECT Parent, Pinned FROM posts WHERE Id = Parent AND Board = ?1)
-        SELECT Parent, Id FROM temp INNER JOIN temp2 ON temp.TParent = temp2.Parent ORDER BY Pinned DESC, Id DESC`
-    subject_look_str = `SELECT Subject FROM subjects WHERE Parent = ? AND Board = ?`
-    shown_count_str = `Select COUNT(*), COUNT(File) FROM 
-      (SELECT *	FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2 ORDER BY Id DESC LIMIT 5)`
-    total_count_str = `Select COUNT(*), COUNT(File) FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2`
-    rss_coll_str = `SELECT Id, Board, Content, Parent, COALESCE(File, '') AS File, COALESCE(Imgprev, '') Imgprev
-                          FROM posts WHERE (Board = ?1 OR ?1 = "home") AND (Parent = ?2 OR ?2 = "rss")
-                          ORDER BY Insertorder DESC LIMIT 20`
-
-    //all inserts(and necessary queries) are preformed in one transaction 
     newpost_wf_str = `INSERT INTO posts(Board, Id, Content, Time, Parent, Identifier, File, Filename, Fileinfo, Filemime, Imgprev, Hash,
         Option, Calendar, Clock, Password, Pinned, Locked, Anchored) 
         VALUES (?1, (SELECT Id FROM latest WHERE Board = ?1), ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, 0, 0, 
@@ -118,10 +84,82 @@ const (
     unpin_str = `UPDATE posts SET Pinned = 0 WHERE Id = ? AND Board = ?`
 )
 
-func Checkout() map[string]*sql.Stmt {
+var readSQLStrs = [...]string {
+    //prev
+    `SELECT Content, Time, COALESCE(Filename, '') Filename, COALESCE(Fileinfo, '') Fileinfo, COALESCE(Filemime, '') Filemime,
+            COALESCE(Imgprev, '') Imgprev, Option FROM posts WHERE Id = ? AND Board = ?`,
+    //prev_parent
+    `SELECT Parent FROM posts WHERE Id = ? AND Board = ?`,
+    //update
+    `SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
+                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option, 
+                Pinned, Locked, Anchored
+                FROM posts WHERE Parent = ? AND Board = ?`,
+    //update_rep            
+    `SELECT Replier FROM replies WHERE Source = ? AND Board = ?`,
+    //parent_coll
+    `WITH temp (TParent, Id) AS (SELECT Parent, MAX(Id) FROM posts WHERE ((instr(Option, 'Sage') = 0 AND Anchored <> 1) OR Id = Parent) AND Board = ?1
+            GROUP BY Parent ORDER BY MAX(Id) DESC),
+        temp2(Parent, Pinned) AS (SELECT Parent, Pinned FROM posts WHERE Id = Parent AND Board = ?1)
+        SELECT Parent, Id FROM temp INNER JOIN temp2 ON temp.TParent = temp2.Parent
+        ORDER BY Pinned DESC, Id DESC LIMIT 15`,
+    //thread_head
+    `SELECT Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
+                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option,
+                Pinned, Locked, Anchored
+                FROM posts WHERE Id = ? AND Board = ?`,
+    //thread_body     
+    `SELECT * FROM (
+                SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
+                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option FROM posts 
+                WHERE Parent = ? AND Board = ? AND Id != Parent ORDER BY Id DESC LIMIT 5)
+                ORDER BY Id ASC`,
+    //thread_coll            
+    `WITH temp (TParent, Id) AS (SELECT Parent, MAX(Id) FROM posts WHERE ((instr(Option, 'Sage') = 0 AND Anchored <> 1) OR Id = Parent) AND Board = ?1
+            GROUP BY Parent ORDER BY MAX(Id) DESC),
+        temp2(Parent, Pinned) AS (SELECT Parent, Pinned FROM posts WHERE Id = Parent AND Board = ?1)
+        SELECT Parent, Id FROM temp INNER JOIN temp2 ON temp.TParent = temp2.Parent ORDER BY Pinned DESC, Id DESC`,
+    //subject_look
+    `SELECT Subject FROM subjects WHERE Parent = ? AND Board = ?`,
+    //hp_coll
+    `SELECT Board, Id, Content, TrunContent, Parent, Password FROM homepost ORDER BY Insertorder DESC`,
+    //ht_coll
+    `SELECT Board, Id, Parent, Imgprev, Password FROM homethumb ORDER BY Insertorder DESC LIMIT 6`,
+    //shown_count
+    `Select COUNT(*), COUNT(File) FROM 
+      (SELECT *	FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2 ORDER BY Id DESC LIMIT 5)`,
+    //total_count
+    `Select COUNT(*), COUNT(File) FROM posts WHERE Board = ?1 AND Parent = ?2 AND Id <> ?2`,
+    //rss_coll
+    `SELECT Id, Board, Content, Parent, COALESCE(File, '') AS File, COALESCE(Imgprev, '') Imgprev
+                          FROM posts WHERE (Board = ?1 OR ?1 = "home") AND (Parent = ?2 OR ?2 = "rss")
+                          ORDER BY Insertorder DESC LIMIT 20`,
+    parent_check_str,
+}
+
+type ReadSQL int
+const (
+    prev_stmt ReadSQL = iota
+    prev_parent_stmt
+    update_stmt
+    update_rep_stmt
+    parent_coll_stmt
+    thread_head_stmt
+    thread_body_stmt
+    thread_coll_stmt
+    subject_look_stmt
+    hp_coll_stmt
+    ht_coll_stmt
+    shown_count_stmt
+    total_count_stmt
+    rss_coll_stmt
+    parent_check_stmt
+)
+
+func Checkout() []*sql.Stmt {
         return <-readConns
 }
-func Checkin(c map[string]*sql.Stmt) {
+func Checkin(c []*sql.Stmt) {
         readConns <- c
 }
 
@@ -144,40 +182,10 @@ func Make_Conns() {
     }
     
     for i := 0; i < Max_conns; i++ {
-
-        //preview statements
-        prev_stmt := prep(prev_str)
-        prev_parentstmt := prep(prev_parent_str)
-
-        //thread update statements
-        updatestmt := prep(update_str)
-        update_repstmt := prep(update_rep_str)
-
-        //board upate statements
-        parent_collstmt := prep(parent_coll_str)
-        thread_headstmt := prep(thread_head_str)
-        thread_bodystmt := prep(thread_body_str)
-
-        //catalog update statement
-        thread_collstmt := prep(thread_coll_str)
-       
-        //subject lookup
-        subject_lookstmt := prep(subject_look_str)
-        hp_collstmt := prep("SELECT Board, Id, Content, TrunContent, Parent, Password FROM homepost ORDER BY Insertorder DESC")
-        ht_collstmt := prep("SELECT Board, Id, Parent, Imgprev, Password FROM homethumb ORDER BY Insertorder DESC LIMIT 6")
-        shown_countstmt := prep(shown_count_str)
-        total_countstmt := prep(total_count_str)
-        rss_collstmt := prep(rss_coll_str)
-        parent_checkstmt := prep(parent_check_str)
-        
-        read_stmts := map[string]*sql.Stmt{"prev": prev_stmt, "prev_parent": prev_parentstmt,
-            "update": updatestmt, "update_rep": update_repstmt, "parent_coll": parent_collstmt,
-            "thread_head": thread_headstmt, "thread_body": thread_bodystmt,
-            "thread_coll": thread_collstmt,"subject_look": subject_lookstmt,
-            "hp_coll": hp_collstmt, "ht_coll": ht_collstmt,
-            "shown_count": shown_countstmt, "total_count": total_countstmt, "rss_coll": rss_collstmt,
-            "parent_check": parent_checkstmt}
-
+        var read_stmts []*sql.Stmt
+        for _, str := range(readSQLStrs) {
+            read_stmts = append(read_stmts, prep(str))
+        }
         readConns <- read_stmts
     }
 
