@@ -25,7 +25,7 @@ var admf_map = map[string]bool {
 func Listen() {
 
     go func() {
-        for range time.Tick(time.Minute) {
+        for range time.Tick(time.Hour) {
             limiter.mu.Lock()
             clear(limiter.ips)
             limiter.mu.Unlock()

@@ -11,7 +11,7 @@ import (
     "github.com/google/uuid"
 )
 
-type Acc_type int64
+type Acc_type int
 const (
     Admin     Acc_type = iota
     Mod

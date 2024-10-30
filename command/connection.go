@@ -7,7 +7,6 @@ import (
 
 const Max_conns = 5
 var readConns = make(chan map[string]*sql.Stmt, Max_conns)
-var writeStrings = make(chan map[string]string, 1)
 var writeConn = make(chan *sql.DB, 1) 
 
 //statement strings
@@ -152,104 +151,40 @@ func WriteConnCheckin(c *sql.DB) {
 
 
 func Make_Conns() {
+    prep := func(SQL string) *sql.Stmt {
+        conn, err := sql.Open("sqlite3", DB_uri)
+        Err_check(err)
+        stmt, err := conn.Prepare(SQL)
+        Err_check(err)
+        return stmt
+    }
+    
     for i := 0; i < Max_conns; i++ {
 
         //preview statements
-        conn1, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        prev_stmt, err := conn1.Prepare(prev_string)
-        Err_check(err)
-
-        conn2, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        prev_parentstmt, err := conn2.Prepare(prev_parentstring)
-        Err_check(err)
-
+        prev_stmt := prep(prev_string)
+        prev_parentstmt := prep(prev_parentstring)
 
         //thread update statements
-        conn3, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        updatestmt, err := conn3.Prepare(updatestring)
-        Err_check(err)
-
-        conn4, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        update_repstmt, err := conn4.Prepare(update_repstring)
-        Err_check(err)
-
+        updatestmt := prep(updatestring)
+        update_repstmt := prep(update_repstring)
 
         //board upate statements
-        conn5, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        parent_collstmt, err := conn5.Prepare(parent_collstring)
-        Err_check(err)
-
-        conn6, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        thread_headstmt, err := conn6.Prepare(thread_headstring)
-        Err_check(err)
-
-        conn7, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        thread_bodystmt, err := conn7.Prepare(thread_bodystring)
-        Err_check(err)
+        parent_collstmt := prep(parent_collstring)
+        thread_headstmt := prep(thread_headstring)
+        thread_bodystmt := prep(thread_bodystring)
 
         //catalog update statement
-        conn10, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)    
-
-        thread_collstmt, err := conn10.Prepare(thread_collstring)
-        Err_check(err)
+        thread_collstmt := prep(thread_collstring)
        
         //subject lookup
-        conn11, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)    
-
-        subject_lookstmt, err := conn11.Prepare(subject_lookstring)
-        Err_check(err)
-
-        conn10a, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        hp_collstmt, err := conn10a.Prepare("SELECT Board, Id, Content, TrunContent, Parent, Password FROM homepost ORDER BY Insertorder DESC")
-        Err_check(err)
-
-        conn10b, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        ht_collstmt, err := conn10b.Prepare("SELECT Board, Id, Parent, Imgprev, Password FROM homethumb ORDER BY Insertorder DESC LIMIT 6")
-        Err_check(err)
-
-        conn12, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        shown_countstmt, err := conn12.Prepare(shown_countstring)
-        Err_check(err)
-
-        conn13, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-
-        total_countstmt, err := conn13.Prepare(total_countstring)
-        Err_check(err)
-
-        conn14, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-        
-        rss_collstmt, err := conn14.Prepare(rss_collstring)
-        Err_check(err)
-        
-        conn15, err := sql.Open("sqlite3", DB_uri)
-        Err_check(err)
-        
-        parent_checkstmt, err := conn15.Prepare(parent_checkstring)
-        Err_check(err)
+        subject_lookstmt := prep(subject_lookstring)
+        hp_collstmt := prep("SELECT Board, Id, Content, TrunContent, Parent, Password FROM homepost ORDER BY Insertorder DESC")
+        ht_collstmt := prep("SELECT Board, Id, Parent, Imgprev, Password FROM homethumb ORDER BY Insertorder DESC LIMIT 6")
+        shown_countstmt := prep(shown_countstring)
+        total_countstmt := prep(total_countstring)
+        rss_collstmt := prep(rss_collstring)
+        parent_checkstmt := prep(parent_checkstring)
         
         read_stmts := map[string]*sql.Stmt{"prev": prev_stmt, "prev_parent": prev_parentstmt,
             "update": updatestmt, "update_rep": update_repstmt, "parent_coll": parent_collstmt,
