@@ -7,7 +7,6 @@ import (
     "html"
     "net/http"
     "database/sql"
-    //"fmt"
 )
 
 //for users to edit and delete their posts
@@ -69,8 +68,7 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
     var file_name string
     var imgprev string
             
-    user_get_file_stmt := WriteStrings["user_get_file"]
-    file_row := new_tx.QueryRowContext(ctx, user_get_file_stmt, post_pass, board)
+    file_row := new_tx.QueryRowContext(ctx, user_get_file_str, post_pass, board)
 
     err = file_row.Scan(&file_name, &imgprev)
     Query_err_check(err)
@@ -85,16 +83,12 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
         
         if req.FormValue("onlyimgdel") == "on" {
             file_deletion()
-            user_filedelete_stmt := WriteStrings["user_filedelete"]
-            _, err := new_tx.ExecContext(ctx, user_filedelete_stmt, post_pass, board)
+            _, err := new_tx.ExecContext(ctx, user_filedelete_str, post_pass, board)
             Err_check(err)
         } else {
-            user_delete_stmt := WriteStrings["user_delete"]
-            isparent_stmt := WriteStrings["isparent2"]
-            
             var pcheck bool
             var id string
-            pcheck_row := new_tx.QueryRowContext(ctx, isparent_stmt, post_pass, board)
+            pcheck_row := new_tx.QueryRowContext(ctx, isparent_str, post_pass, board)
             pcheck_row.Scan(&pcheck, &id)
             
             if pcheck {
@@ -103,7 +97,7 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
                 Delete_file(file_path, id + ".xml", "")
             }
             
-            res, err := new_tx.ExecContext(ctx, user_delete_stmt, sdate, post_pass, board)
+            res, err := new_tx.ExecContext(ctx, user_delete_str, sdate, post_pass, board)
             Err_check(err)
         
             rowsaffected, err := res.RowsAffected()
@@ -143,10 +137,9 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
         input, repmatches := Format_post(input, board, parent)
         
         //updating
-        user_edit_stmt := WriteStrings["user_edit"]
         edit_message := `Post edited on ` + now.Format("2 Jan 2006, 3:04pm") 
         
-        res, err := new_tx.ExecContext(ctx, user_edit_stmt, input, edit_message, sdate, post_pass, board)
+        res, err := new_tx.ExecContext(ctx, user_edit_str, input, edit_message, sdate, post_pass, board)
         Err_check(err)
         
         rowsaffected, err := res.RowsAffected()
@@ -158,17 +151,15 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
         }
         
         if len(repmatches) > 0 {
-            repupdate_stmt := WriteStrings["repupdate"]
             for _, match := range repmatches {
                 match_id, err := strconv.ParseUint(match, 10, 64)
                 Err_check(err)
-                _, err = new_tx.ExecContext(ctx, repupdate_stmt, board, match_id, post_pass)
+                _, err = new_tx.ExecContext(ctx, repupdate_str, board, match_id, post_pass)
                 Err_check(err)
             }    
         }
         
-        hpupdate_stmt := WriteStrings["hpupdate"]
-        _, err = new_tx.ExecContext(ctx, hpupdate_stmt, home_content, home_truncontent, post_pass, board)
+        _, err = new_tx.ExecContext(ctx, hpupdate_str, home_content, home_truncontent, post_pass, board)
         Err_check(err)
     }
     

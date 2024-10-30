@@ -88,9 +88,9 @@ func main() {
 
     LatestSeed()
     Make_Conns()
-    go Clean(40 * time.Hour, "get_deleted", "delete_remove", time.UnixDate)
-    go Clean(10 * time.Minute, "get_expired_tokens", "delete_expired_token", time.UnixDate)
-    go Clean(24 * time.Hour, "get_bans", "delete_ban", time.RFC1123)
+    go Clean(40 * time.Hour, get_deleted_str, delete_remove_str, time.UnixDate)
+    go Clean(10 * time.Minute, get_expired_tokens_str, delete_expired_token_str, time.UnixDate)
+    go Clean(24 * time.Hour, get_bans_str, delete_ban_str, time.RFC1123)
 
     if URL_bl != "" {
         Get_bl()

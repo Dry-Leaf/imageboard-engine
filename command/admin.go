@@ -27,7 +27,7 @@ const (
     delete_log_query_string = `SELECT Identifier, Time, Mod, Content, Reason FROM deleted`
 )
 
-var thread_map = map[string]int{"Pin": 1, "Unpin": 1, "Lock": 1, "Unlock": 1}
+var thread_map = map[string]string{"Pin": pin_str, "Unpin": unpin_str, "Lock": lock_str, "Unlock": unlock_str}
 
 type Query_results struct {
     Posts []*Post
@@ -107,26 +107,23 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                 ban_expiry = time.Now().In(Nip).Add(time.Hour * time.Duration(duration))
             }
 
-            ban_stmt := WriteStrings["ban"]
             if duration >= 0 {
-                _, err = new_tx.ExecContext(ctx, ban_stmt, id, board, ban_expiry.Format(time.RFC1123), userSession.username, reason)
+                _, err = new_tx.ExecContext(ctx, ban_str, id, board, ban_expiry.Format(time.RFC1123), userSession.username, reason)
             } else { //permaban
-                _, err = new_tx.ExecContext(ctx, ban_stmt, id, board, -1, userSession.username, reason)
+                _, err = new_tx.ExecContext(ctx, ban_str, id, board, -1, userSession.username, reason)
             }
             Err_check(err)
 
             ban_message := req.FormValue("banmessage")
             if ban_message != "" {
-                ban_message_stmt := WriteStrings["ban_message"]
-                _, err = new_tx.ExecContext(ctx, ban_message_stmt, ban_message, id, board)
+                _, err = new_tx.ExecContext(ctx, ban_message_str, ban_message, id, board)
                 Err_check(err)
                 update_posts = true
             }
         }
 
         if strings.HasSuffix(actions, "Delete") {
-            delete_log_stmt := WriteStrings["delete_log"]
-            _, err = new_tx.ExecContext(ctx, delete_log_stmt, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, reason)
+            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, reason)
 			Err_check(err)
 
 	    delete_tree(id, board, new_tx, ctx)
@@ -135,11 +132,8 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
         }
 
         if strings.HasSuffix(actions, "Delete All by User") {
-            get_all_files_stmt := WriteStrings["get_all_files"]
-            get_all_parents_stmt := WriteStrings["get_all_parents"]
-
             //DO FOR ALL FILES
-            file_rows, err := new_tx.QueryContext(ctx, get_all_files_stmt, id, board)
+            file_rows, err := new_tx.QueryContext(ctx, get_all_files_str, id, board)
             Err_check(err)
             defer file_rows.Close()
 
@@ -156,7 +150,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                     Delete_file(file_path, file_name, imgprev)
             }}
             
-            thread_rows, err := new_tx.QueryContext(ctx, get_all_parents_stmt, id, board)
+            thread_rows, err := new_tx.QueryContext(ctx, get_all_parents_str, id, board)
             Err_check(err)
             defer thread_rows.Close()
             
@@ -180,19 +174,15 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                 defer Build_catalog(b)
             }
 
-            delete_log_stmt := WriteStrings["delete_log"]
-            _, err = new_tx.ExecContext(ctx, delete_log_stmt, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, "All Removed.")
-
-            delete_all_posts_stmt := WriteStrings["delete_all_posts"]
-            _, err = new_tx.ExecContext(ctx, delete_all_posts_stmt, id, board)
+            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, "All Removed.")
+            Err_check(err)
+            _, err = new_tx.ExecContext(ctx, delete_all_posts_str, id, board)
             Err_check(err)
 
             update_posts = true
         }
         
         if strings.HasSuffix(actions, "Delete File") {
-            filedelete_stmt := WriteStrings["filedelete"]
-        
             file_row := new_tx.QueryRowContext(ctx, `SELECT COALESCE(File, '') File, COALESCE(Imgprev, '') Imgprev 
                 FROM posts WHERE Id = ? AND Board = ?`, id, board)
             
@@ -204,7 +194,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                 file_path := BP + "head/" + board + "/Files/"
                 Delete_file(file_path, file_name, imgprev)
                 
-                _, err = new_tx.ExecContext(ctx, filedelete_stmt, id, board)
+                _, err = new_tx.ExecContext(ctx, filedelete_str, id, board)
                 Err_check(err)
                 
                 update_posts = true
@@ -212,14 +202,13 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
         }
 
 		//for pinning and locking
-        if _, present := thread_map[actions]; present  {
+        if chain_str, present := thread_map[actions]; present  {
             if userSession.acc_type == Maid {
                 http.Error(w, "Unauthorized.", http.StatusUnauthorized)
                 return
             }
 
-            chain_stmt := WriteStrings[actions]
-            _, err = new_tx.ExecContext(ctx, chain_stmt, parents, board)
+            _, err = new_tx.ExecContext(ctx, chain_str, parents, board)
             Err_check(err)
 
             update_posts = true
@@ -256,7 +245,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
             new_token := uuid.NewString()
 
-            _, err = new_tx.ExecContext(ctx, Add_token_string, new_token, rusertype, time.Now().In(Nip).Format(time.UnixDate))
+            _, err = new_tx.ExecContext(ctx, Add_token_str, new_token, rusertype, time.Now().In(Nip).Format(time.UnixDate))
             Err_check(err)
 
             w.Write([]byte(html_head +  `<title>User Token</title>
@@ -268,8 +257,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
             username := req.FormValue("username")
             if Entry_check(w, req, "username", username) == 0 {return}
 
-            remove_user_stmt := WriteStrings["remove_user"]
-            _, err = new_tx.ExecContext(ctx, remove_user_stmt, username)
+            _, err = new_tx.ExecContext(ctx, remove_user_str, username)
             Err_check(err)
 
 
@@ -280,8 +268,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
 
         if actions == "removetokens" {
-            remove_tokens_stmt := WriteStrings["remove_tokens"]
-            _, err = new_tx.ExecContext(ctx, remove_tokens_stmt)
+            _, err = new_tx.ExecContext(ctx, remove_tokens_str)
             Err_check(err)
 
             w.Write([]byte(html_head +  `<title>Token Removal</title>
@@ -297,11 +284,8 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
 
 func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
-    get_files_stmt := WriteStrings["get_files"]
-    isparent_stmt := WriteStrings["isparent"]
-    
     //DO FOR ALL FILES
-    file_rows, err := new_tx.QueryContext(ctx, get_files_stmt, id, board)
+    file_rows, err := new_tx.QueryContext(ctx, get_files_str, id, board)
     Err_check(err)
     defer file_rows.Close()
     
@@ -316,7 +300,7 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
     }}
     
     var pcheck bool
-    pcheck_row := new_tx.QueryRowContext(ctx, isparent_stmt, id, board)
+    pcheck_row := new_tx.QueryRowContext(ctx, isparent_str, id, board)
     pcheck_row.Scan(&pcheck)
     if pcheck {
             file_path := BP + "head/" + board + "/"
@@ -324,8 +308,7 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
             Delete_file(file_path, id + ".xml", "")
     }
 
-    delete_post_stmt := WriteStrings["delete_post"]
-    _, err = new_tx.ExecContext(ctx, delete_post_stmt, id, board)
+    _, err = new_tx.ExecContext(ctx, delete_post_str, id, board)
     Err_check(err)
 }
 
@@ -348,8 +331,7 @@ func Unban(w http.ResponseWriter, req *http.Request) {
     Err_check(err)
     defer new_tx.Rollback()
     
-    ban_removestmt := WriteStrings["ban_remove"]
-    _, err = new_tx.ExecContext(ctx, ban_removestmt, identity, expiry)
+    _, err = new_tx.ExecContext(ctx, ban_remove_str, identity, expiry)
     Err_check(err)
 
     err = new_tx.Commit()
@@ -608,8 +590,7 @@ func Clean(expiry time.Duration, get_string, remove_string, time_format string) 
             Err_check(err)
             defer new_tx.Rollback()
 
-            get_deletedsmt := WriteStrings[get_string]
-            deleted_rows, err := new_tx.Query(get_deletedsmt)
+            deleted_rows, err := new_tx.Query(get_string)
             Err_check(err)
             defer deleted_rows.Close()
 
@@ -622,8 +603,7 @@ func Clean(expiry time.Duration, get_string, remove_string, time_format string) 
                 Err_check(err) 
 
                 if deleted_actualt.Add(expiry).Before(time.Now().In(Nip)) {	
-                    delete_removestmt := WriteStrings[remove_string]
-                    _, err = new_tx.Exec(delete_removestmt, deleted_identity, deleted_time)
+                    _, err = new_tx.Exec(remove_string, deleted_identity, deleted_time)
                     Err_check(err)
             }}
             err = new_tx.Commit()

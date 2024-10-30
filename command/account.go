@@ -90,7 +90,7 @@ func Admin_init() {
     conn, err := sql.Open("sqlite3", DB_uri)
     Err_check(err)
     defer conn.Close()
-    add_token_stmt, err := conn.Prepare(Add_token_string)
+    add_token_stmt, err := conn.Prepare(Add_token_str)
     Err_check(err)
 
     add_token_stmt.Exec("500", Admin, time.Now().In(Nip).Add(time.Hour * 1).Format(time.UnixDate))
@@ -153,7 +153,7 @@ func Token_check (w http.ResponseWriter, req *http.Request) {
     defer new_tx.Rollback()
 
     var acc_type Acc_type
-    err = new_tx.QueryRowContext(ctx, search_token_string, token).Scan(&acc_type)
+    err = new_tx.QueryRowContext(ctx, search_token_str, token).Scan(&acc_type)
     if err == sql.ErrNoRows {
         http.Error(w, "Invalid token.", http.StatusBadRequest)
         return
@@ -162,7 +162,7 @@ func Token_check (w http.ResponseWriter, req *http.Request) {
     }
 
     //look in database for username
-    err = new_tx.QueryRowContext(ctx, search_user_string, username).Scan()
+    err = new_tx.QueryRowContext(ctx, search_user_str, username).Scan()
     if err != sql.ErrNoRows {
         http.Error(w, "Username already in use.", http.StatusBadRequest)
         return
@@ -176,13 +176,13 @@ func Token_check (w http.ResponseWriter, req *http.Request) {
     }
 
     //deleting token
-    _, err = new_tx.ExecContext(ctx, delete_token_string, token)
+    _, err = new_tx.ExecContext(ctx, delete_token_str, token)
     Err_check(err)
 
     hash, err := argon2id.CreateHash(password, Argon_params)
     Err_check(err)
     
-    _, err = new_tx.ExecContext(ctx, new_user_string, username, hash, acc_type)
+    _, err = new_tx.ExecContext(ctx, new_user_str, username, hash, acc_type)
     Err_check(err)
     
     err = new_tx.Commit()
@@ -226,7 +226,7 @@ func Credential_check (w http.ResponseWriter, req *http.Request) {
     conn, err := sql.Open("sqlite3", DB_uri)
     Err_check(err)
     defer conn.Close()
-    search_user_stmt, err := conn.Prepare(search_user_string)
+    search_user_stmt, err := conn.Prepare(search_user_str)
     Err_check(err)
 
     var found_hash string

@@ -45,8 +45,7 @@ func generic_gen_info(size int64) string {
 }
 
 func Ban_check(w http.ResponseWriter, req *http.Request, new_tx *sql.Tx, ctx context.Context, identity string) bool {
-    ban_searchstmt := WriteStrings["ban_search"]
-    ban_rows, err := new_tx.QueryContext(ctx, ban_searchstmt, identity)
+    ban_rows, err := new_tx.QueryContext(ctx, ban_search_str, identity)
     Err_check(err)
     defer ban_rows.Close()
 	
@@ -68,12 +67,11 @@ func Ban_check(w http.ResponseWriter, req *http.Request, new_tx *sql.Tx, ctx con
             http.Error(w, "You are banned until: " + ban_result + " Reason: " + ban_reason, http.StatusBadRequest)
             return true
         } else {
-            ban_removestmt := WriteStrings["ban_remove"]
-            _, err = new_tx.ExecContext(ctx, ban_removestmt, identity, ban_result)
+            _, err = new_tx.ExecContext(ctx, ban_remove_str, identity, ban_result)
             Err_check(err)
         }
 
-        err = new_tx.QueryRowContext(ctx, ban_searchstmt, identity).Scan(&ban_result)
+        err = new_tx.QueryRowContext(ctx, ban_search_str, identity).Scan(&ban_result)
         Query_err_check(err)
     }
     return false
@@ -173,10 +171,9 @@ func New_post(w http.ResponseWriter, req *http.Request) {
 
     //new thread if no parent is specified
     if parent != "" {
-        parent_checkstmt := WriteStrings["parent_check"]
         var parent_result int
 
-        err = new_tx.QueryRowContext(ctx, parent_checkstmt, parent, board).Scan(&parent_result)
+        err = new_tx.QueryRowContext(ctx, parent_check_str, parent, board).Scan(&parent_result)
         Query_err_check(err)
 
         if parent_result == 0 {
@@ -185,8 +182,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
         }
 
         var lock_result int
-        lock_checkstmt := WriteStrings["lock_check"]
-        err = new_tx.QueryRowContext(ctx, lock_checkstmt, parent, board).Scan(&lock_result)
+        err = new_tx.QueryRowContext(ctx, lock_check_str, parent, board).Scan(&lock_result)
         Query_err_check(err)
 
         if lock_result == 1 {
@@ -199,16 +195,13 @@ func New_post(w http.ResponseWriter, req *http.Request) {
             http.Error(w, "Please upload a file.", http.StatusBadRequest)
             return
         }
-    
-        threadid_stmt := WriteStrings["threadid"]
-
-        err = new_tx.QueryRowContext(ctx, threadid_stmt, board).Scan(&parent)
+  
+        err = new_tx.QueryRowContext(ctx, threadid_str, board).Scan(&parent)
         Query_err_check(err)
         
         //subject insert
         if trimmed_subject := strings.TrimSpace(subject); trimmed_subject != "" {
-            subadd_stmt := WriteStrings["subadd"]
-            _, err = new_tx.ExecContext(ctx, subadd_stmt, board, parent, trimmed_subject)
+            _, err = new_tx.ExecContext(ctx, subadd_str, board, parent, trimmed_subject)
             Err_check(err)
         }
     }
@@ -225,10 +218,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
     post_time := now.Format("1/2/06(Mon)15:04:05")
     calendar := now.Format("20060102")
     clock := now.Format("1504")
-
-    hpadd_stmt := WriteStrings["hpadd"]
-	
-	post_pass := Rand_gen()
+    post_pass := Rand_gen()
 
     //file present
     if file_err == nil {
@@ -280,8 +270,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                 file_pre += "s"
                 
                 var dupt, dupid string
-                dupcheck_stmt := WriteStrings["dupcheck"]
-                err = new_tx.QueryRowContext(ctx, dupcheck_stmt, hash, board).Scan(&dupt, &dupid)
+                err = new_tx.QueryRowContext(ctx, dupcheck_str, hash, board).Scan(&dupt, &dupid)
                 if err != sql.ErrNoRows {
                     Delete_file(file_path, file_name, file_pre)
                     http.Error(w, `Duplicate image. Original: /` + board + `/` + dupt + `.html#no` + dupid, http.StatusUnauthorized)
@@ -343,9 +332,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                     return
 				} else {file_pre = "audio_image"}
             }
-            
-            newpst_wfstmt := WriteStrings["newpost_wf"]
-
+           
             ofname := []rune(handler.Filename)
             rem := len(ofname) - 50
             if rem < 0 {
@@ -353,14 +340,13 @@ func New_post(w http.ResponseWriter, req *http.Request) {
             }
             ffname := string(ofname[rem:])
 
-            _, err = new_tx.ExecContext(ctx, newpst_wfstmt, board, input, post_time, parent, identity, 
+            _, err = new_tx.ExecContext(ctx, newpost_wf_str, board, input, post_time, parent, identity, 
                 file_name, ffname, file_info, mime_type, file_pre, hash,
                 option, calendar, clock, post_pass)
             Err_check(err)
 			
             if !HBoard_map[board] && htadd_cond {
-                htadd_stmt := WriteStrings["htadd"]
-                _, err = new_tx.ExecContext(ctx, htadd_stmt, board, parent, file_pre, post_pass)
+                _, err = new_tx.ExecContext(ctx, htadd_str, board, parent, file_pre, post_pass)
                 Err_check(err)
 			}
         } else {
@@ -369,24 +355,22 @@ func New_post(w http.ResponseWriter, req *http.Request) {
         }
     //file not present 
     } else {
-        newpost_nfstmt := WriteStrings["newpost_nf"]
-        _, err := new_tx.ExecContext(ctx, newpost_nfstmt, board, input, post_time, parent, identity, option, calendar, clock, post_pass)
+        _, err := new_tx.ExecContext(ctx, newpost_nf_str, board, input, post_time, parent, identity, option, calendar, clock, post_pass)
         Err_check(err)
     }
 
     if !no_text { 
         if !HBoard_map[board] {
-            _, err = new_tx.ExecContext(ctx, hpadd_stmt, board, home_content, home_truncontent, parent, post_pass)
+            _, err = new_tx.ExecContext(ctx, hpadd_str, board, home_content, home_truncontent, parent, post_pass)
             Err_check(err)
     }}
 
     //reply insert
     if len(repmatches) > 0 {
-        repadd_stmt := WriteStrings["repadd"]
         for _, match := range repmatches {
             match_id, err := strconv.ParseUint(match, 10, 64)
             Err_check(err)
-            _, err = new_tx.ExecContext(ctx, repadd_stmt, board, match_id, post_pass)
+            _, err = new_tx.ExecContext(ctx, repadd_str, board, match_id, post_pass)
             Err_check(err)
         }    
     }
