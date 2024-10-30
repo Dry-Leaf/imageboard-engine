@@ -26,7 +26,7 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
         post_pass = c.Value
     }
     
-    if pwd := req.FormValue("pwd"); pwd != "password" && pwd != "" {
+    if pwd := req.FormValue("pwd"); pwd != "<password>" && pwd != "" {
         post_pass = pwd
     }
     
@@ -184,4 +184,9 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
     //error if no rows are affected: This post is too old, has replies, or doesn't exist. 
     
     http.Redirect(w, req, req.Header.Get("Referer"), 302)
+}
+
+func Search(w http.ResponseWriter, req *http.Request) {
+        http.Error(w, "Search.", http.StatusUnauthorized)
+        return
 }

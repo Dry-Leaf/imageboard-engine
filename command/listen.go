@@ -8,8 +8,8 @@ import (
     "golang.org/x/time/rate"
 )
 
-var rarr = []rate.Limit{20, .04, .5, 1, 1, 10, .04}
-var barr = []int{30, 1, 1, 1, 10, 50, 2}
+var rarr = []rate.Limit{20, .04, .5, 1, 1, 10, .04, .03} //fill rate
+var barr = []int{30, 1, 1, 1, 10, 50, 2, 3} //bucket size
 var limiter = NewIPRateLimiter(rarr, barr)
 
 var admf_map = map[string]bool {
@@ -25,8 +25,10 @@ var admf_map = map[string]bool {
 func Listen() {
 
     go func() {
-        for range time.Tick(time.Hour) {
-            limiter = NewIPRateLimiter(rarr, barr)
+        for range time.Tick(time.Minute) {
+            limiter.mu.Lock()
+            clear(limiter.ips)
+            limiter.mu.Unlock()
     }}()
 
     //listen mux
@@ -42,7 +44,8 @@ func Listen() {
     mux.HandleFunc("/im/mod/", Moderation_actions)
     mux.HandleFunc("/im/unban/", Unban)
     mux.HandleFunc("/im/vid/", Vidget)
-	mux.HandleFunc("/im/user/", User_actions)
+    mux.HandleFunc("/im/user/", User_actions)
+    mux.HandleFunc("/im/search", Search)
 
 
     srv := &http.Server {
@@ -76,18 +79,18 @@ func hongMeiling(next http.Handler) http.Handler {
                 sel = 4
             case url == "vid":
                 sel = 5
-		    case url == "user":
+	    case url == "user":
                 sel = 6
+            case url == "search":
+                sel = 7
         }
 
         climiter := limiter.GetLimiter(r.Header.Get("X-Real-IP"), sel)
 
-
-            if !climiter.Allow() {
-                    http.Error(w, "Request limit exceeded. Please wait.", http.StatusTooManyRequests)
-                    return
-            }
-
+        if !climiter.Allow() {
+            http.Error(w, "Request limit exceeded. Please wait.", http.StatusTooManyRequests)
+            return
+        }
         next.ServeHTTP(w, r)    
     })
 }
