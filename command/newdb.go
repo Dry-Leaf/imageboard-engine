@@ -33,7 +33,7 @@ var createSQL = [...]string {`CREATE TABLE posts (
     );`,
     
     `CREATE VIRTUAL TABLE search USING fts5(Board, Id, Content, Time,
-        content='posts', content_rowid='Insertorder');`,
+        tokenize='porter ascii', content='posts', content_rowid='Insertorder');`,
 
     `CREATE TABLE replies (
         Board TEXT NOT NULL,

@@ -99,7 +99,9 @@ func main() {
     go Auto_delete()
 
     Build_home()
+    Build_search()
     Build_rss("", "")
+
     for board, _ := range Board_map{
         Build_board(board)
         Build_catalog(board)

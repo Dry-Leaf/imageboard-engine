@@ -5,12 +5,16 @@ import (
     "strings"
     "strconv"
     "html"
+    "text/template"
     "net/http"
     "database/sql"
 )
 
-//for users to edit and delete their posts
+type Search_results struct {
+    Posts []*Post
+}
 
+//for users to edit and delete their posts
 func User_actions(w http.ResponseWriter, req *http.Request) {
     ctx := req.Context()
     var post_pass string
@@ -178,6 +182,56 @@ func User_actions(w http.ResponseWriter, req *http.Request) {
 }
 
 func Search(w http.ResponseWriter, req *http.Request) {
-        http.Error(w, "Search.", http.StatusUnauthorized)
+    query := req.FormValue("query")
+    qlen := len([]rune(query))
+
+    if qlen > 30 {
+        http.Error(w, "Query too long.", http.StatusBadRequest)
         return
+    }
+    if qlen < 3 {
+        http.Error(w, "Query too short.", http.StatusBadRequest)
+        return
+    }
+
+    stmts := Checkout()
+    defer Checkin(stmts)
+
+    var rows *sql.Rows
+    var err error
+
+    board := req.FormValue("board")
+    if board == "" {
+        user_query_stmt := stmts[user_query_stmt]
+        rows, err = user_query_stmt.Query(query)
+        Err_check(err)
+    } else {
+        user_query_stmt := stmts[user_query_wb_stmt]
+        rows, err = user_query_stmt.Query(query, board)
+        Err_check(err)
+    }
+    defer rows.Close()
+    
+    var results []*Post
+
+    for rows.Next() {
+        var cpst Post
+        err = rows.Scan(&cpst.BoardN, &cpst.Id, &cpst.Content, &cpst.Time, &cpst.Parent, &cpst.File,
+            &cpst.Filename, &cpst.Fileinfo, &cpst.Filemime, &cpst.Imgprev, &cpst.Option)
+        Err_check(err)
+            results = append(results, &cpst)
+    }
+
+    if len(results) == 0 {
+        http.Error(w, "No results.", http.StatusBadRequest)
+        return
+    }
+    
+    search_temp := template.New("results.html").Funcs(Filefuncmap)
+    search_temp, err = search_temp.ParseFiles(BP + "/templates/results.html", BP + "/templates/snippet.html")
+    Err_check(err)
+
+    result_struct := Search_results{Posts: results}
+    err = search_temp.Execute(w, result_struct)
+    Err_check(err)
 }

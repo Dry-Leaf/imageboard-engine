@@ -26,7 +26,7 @@ type Hp struct {
     Content string
     ContentFull string
     Parent string
-	Password string
+    Password string
 }
 
 type Ht struct {
@@ -34,7 +34,7 @@ type Ht struct {
     Id int
     Parent string
     Imgprev string
-	Password string
+    Password string
 }
 
 type Home struct {
@@ -173,4 +173,20 @@ func Build_home() {
     home := Home{Title: SiteName, Latest: hps, Thumbs: hts, Header: Board_names, HeaderDescs: Board_descs, 
         SThemes: Themes}
     hometemp.Execute(f, home)
+}
+
+func Build_search() {
+    searchtemp := template.New("search.html").Funcs(Filefuncmap)
+    searchtemp, err := searchtemp.ParseFiles(BP + "/templates/search.html", BP + "/templates/snippet.html")
+    Err_check(err)
+
+    path := BP + "head/"
+    Dir_check(path)
+
+    f, err := os.Create(path + "search.html")
+    Err_check(err)
+    defer f.Close()
+
+    board_data := map[string][]string{"Header": Board_names, "HeaderDescs": Board_descs}
+    searchtemp.Execute(f, board_data)
 }

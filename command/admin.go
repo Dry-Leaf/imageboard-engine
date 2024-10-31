@@ -458,7 +458,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
 
     if err == nil {
         mostrecent_temp := template.New("console.html").Funcs(Filefuncmap)
-        mostrecent_temp, err := mostrecent_temp.ParseFiles(BP + "/templates/console.html")
+        mostrecent_temp, err := mostrecent_temp.ParseFiles(BP + "/templates/console.html", BP + "/templates/snippet.html")
         Err_check(err)
 
         results := Query_results{Posts: most_recent, Auth: userSession.acc_type}

@@ -106,20 +106,13 @@ hr {
     border: none;
 }
 
-admbox {
-    border: 2px solid rosybrown;
-    width: 100%;
-    display: block;
-    margin-bottom: 20px;
-}
-
-input[type=text], input[type=password], input[type=submit], input::file-selector-button {
+input[type=text], input[type=password], input[type=submit], input::file-selector-button, select {
     border-style: solid;
     border-width: 1px;
     border-color: lightgray;
 }
 
-input[type=submit] {
+input[type=submit], select {
     padding: 3px;
 }
 
@@ -130,11 +123,6 @@ input[type=file] {
 .ficon::after {
     content: " <= 15MB (1MB on clearnet)";
     font-size: small;
-}
-
-.controls {
-    background-color: rosybrown;
-    padding: 5px;
 }
 
 quo > * {

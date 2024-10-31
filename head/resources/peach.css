@@ -1,14 +1,14 @@
 body {
-    background-color: rgb(253, 244, 240);
-    color: rgb(48, 34, 27);
+    background-color: #fff5ee;
+    color: #171412;
 }
 
 a, summary {
-    color: rgb(121, 85, 68);
+    color: #b95754;
 }
 
 subject {
-    color: rgb(121, 75, 75);
+    color: #8b352d;
 }
 
 textarea {
@@ -20,7 +20,7 @@ textarea:focus {
 }
 
 quo {
-    color: rgb(119, 171, 56);
+    color: #6f9940;
 }
 
 spoil {
@@ -42,15 +42,15 @@ hr {
 }
 
 .prev {
-    border-color: rgb(209, 158, 158);
+    border-color: #f6aa8c;
 }
 
 .post, .prev {
-    background-color: rgb(246, 195, 171);
+    background-color: #fbceb1;
 }
 
 selfref a, .reply a {
-    color: rgb(138, 79, 56);
+    color: #a13d2d;
 }
 
 selfref a:hover {
@@ -58,7 +58,7 @@ selfref a:hover {
 }
 
 .catalog td {
-    border: 2px dotted rgb(131, 102, 85);
+    border: 2px dotted #913228;
 }
 
 .sage time {

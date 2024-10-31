@@ -20,11 +20,7 @@
 </style>
 </head>
 
-<body>{{$Descs := .HeaderDescs}}
-<p class="headerblock">{{range $index, $name := .Header}}
-    <a class="header" href="/{{$name}}" title="{{index $Descs $index}}">/{{$name}}/</a> {{end}}
-    <a class="header" href="/" title="front page">home</a>
-</p><br>
+<body>{{template "headerblock" .}}
 
 <center>
 <img class="bannerimg" src="/resources/banners/cbanner.webp" height="100" width="300">

@@ -135,6 +135,18 @@ var readSQLStrs = [...]string {
                           FROM posts WHERE (Board = ?1 OR ?1 = "home") AND (Parent = ?2 OR ?2 = "rss")
                           ORDER BY Insertorder DESC LIMIT 20`,
     parent_check_str,
+    //user_query
+    `WITH temp(Board, Id, rank) AS (SELECT Board, Id, rank FROM search(?) ORDER BY rank LIMIT 50)
+        SELECT posts.Board, posts.Id, Content, Time, Parent, COALESCE(File, '') File, COALESCE(Filename, '') Filename, COALESCE(Fileinfo, '') Fileinfo,
+            COALESCE(Filemime, '') Filemime, COALESCE(Imgprev, '') Imgprev, Option
+        FROM posts INNER JOIN temp
+            ON temp.Board = posts.Board AND temp.Id = posts.Id`,
+    //user_query_wb
+    `WITH temp(Board, Id, rank) AS (SELECT Board, Id, rank FROM search(?) WHERE Board = ? ORDER BY rank LIMIT 50)
+        SELECT posts.Board, posts.Id, Content, Time, Parent, COALESCE(File, '') File, COALESCE(Filename, '') Filename, COALESCE(Fileinfo, '') Fileinfo,
+            COALESCE(Filemime, '') Filemime, COALESCE(Imgprev, '') Imgprev, Option
+        FROM posts INNER JOIN temp
+            ON temp.Board = posts.Board AND temp.Id = posts.Id`,
 }
 
 type ReadSQL int
@@ -154,6 +166,8 @@ const (
     total_count_stmt
     rss_coll_stmt
     parent_check_stmt
+    user_query_stmt
+    user_query_wb_stmt
 )
 
 func Checkout() []*sql.Stmt {

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Results</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/resources/base.css">
+    <link rel="stylesheet" href="/resources/default.css">
+    <script async src="/resources/thread.js" defer></script>
+
+<style>
+{{range .Posts}}{{if .File}}{{if imagecheck .Filemime}}
+.p{{.Id}}{{.BoardN}} {--mini: url('/{{.BoardN}}/Files/{{.Imgprev}}'); --maxi: url('/{{.BoardN}}/Files/{{.File}}');}{{end}}{{end}}{{end}}
+</style>
+</head>
+
+<body>
+{{if .Posts}}{{range .Posts}}
+    {{template "searchwrap" .}}
+{{end}}{{end}}
+</body>
+</html>
