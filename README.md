@@ -58,7 +58,7 @@ go mod init modules
 
 go mod tidy 
 
-go build -o ogai *.go
+go build --tags "fts5" -o ogai *.go
 
 `Note`
 
