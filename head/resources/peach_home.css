@@ -1,17 +1,21 @@
 :root {
-    --sel-color: rgb(246, 195, 171);
+    --sel-color: #fbceb1;
 }
 
 .hbody {
     background-image: url("peach_hbg.png");
 }
 
-.hline .blink .hop {
-    rgb(121, 85, 68);
+.hop {
+    color: #171412;
+}
+
+.hline {
+    color: #663854;
 }
 
 .fhop {
-    background-color: rgb(246, 195, 171);
+    background-color: #fbceb1;
 }
 
 .tcon {
