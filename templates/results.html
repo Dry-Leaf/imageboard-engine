@@ -16,6 +16,8 @@
 </head>
 
 <body>
+{{template "headerblock" .}}
+    
 {{if .Posts}}{{range .Posts}}
     {{template "searchwrap" .}}
 {{end}}{{end}}

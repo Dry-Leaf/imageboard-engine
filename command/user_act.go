@@ -12,6 +12,8 @@ import (
 
 type Search_results struct {
     Posts []*Post
+    Header []string
+    HeaderDescs []string
 }
 
 //for users to edit and delete their posts
@@ -231,7 +233,7 @@ func Search(w http.ResponseWriter, req *http.Request) {
     search_temp, err = search_temp.ParseFiles(BP + "/templates/results.html", BP + "/templates/snippet.html")
     Err_check(err)
 
-    result_struct := Search_results{Posts: results}
+    result_struct := Search_results{Posts: results, Header: Board_names, HeaderDescs: Board_descs}
     err = search_temp.Execute(w, result_struct)
     Err_check(err)
 }
