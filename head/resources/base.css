@@ -197,6 +197,10 @@ pre+br {
     max-width: 120ch;
 }
 
+.imspec+.pcontent {
+    min-width: 40ch;
+}
+
 .prevcontent {
     margin-top: 10px;
     padding-left: 5px;
