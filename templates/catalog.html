@@ -15,6 +15,7 @@
 <body>{{$Descs := .HeaderDescs}}
 <p class="headerblock">{{range $index, $name :=  .Header}}
     <a class="header" href="/{{$name}}/catalog.html" title="{{index $Descs $index}}">/{{$name}}/</a>{{end}}
+    <a class="header" href="/search.html" title="search page">search</a>
     <a class="header" href="/" title="front page">home</a>
 </p><br>
 
