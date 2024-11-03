@@ -46,24 +46,22 @@ func Delete_file(file_path, file_name, imgprev string) {
         name_arr = append(name_arr, imgprev)
     }
 
-    if len(Purge_pass) > 0 {
-        for _, name := range name_arr {
-            err := os.Truncate(file_path + name, 0)
-            if err != nil {continue}
-    
+    for _, name := range name_arr {
+        err := os.Truncate(file_path + name, 0)
+        if err != nil {continue}
+
+        if len(Purge_pass) > 0 {
             url_path := SiteScheme + SiteName + "." + TLD + strings.TrimPrefix(file_path, BP + "head") + name
-            purge_req, err := http.NewRequest("GET", url_path, nil)
+            purge_req, err := http.NewRequest("PURGE", url_path, nil)
             Err_check(err)
-            purge_req.Header.Set("purge-pass", Purge_pass)
 
             client := &http.Client{}
             client.Do(purge_req)
-
-            //fmt.Println(url_path)
-
-            err = os.Remove(file_path + name)
-            if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
-    }}
+        }
+        
+        err = os.Remove(file_path + name)
+        if !errors.Is(err, fs.ErrNotExist) {Err_check(err)}
+    }
 }
 
 func main() {
