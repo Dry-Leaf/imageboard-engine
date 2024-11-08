@@ -267,7 +267,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                     http.Error(w, "Corrupted image.", http.StatusBadRequest)
                     return
                 }
-                file_pre += "s"
+                file_pre += "s.webp"
                 
                 var dupt, dupid string
                 err = new_tx.QueryRowContext(ctx, dupcheck_str, hash, board).Scan(&dupt, &dupid)
@@ -321,7 +321,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                             if cerr != nil {
                                 file_pre = "audio_image"
                             } else {
-                                file_pre += "s"
+                                file_pre += "s.webp"
                             }
                             htadd_cond = true
                             break
