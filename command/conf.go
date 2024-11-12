@@ -27,6 +27,7 @@ var URL_bl string
 var Auto_phrases []string
 var Captchas []string
 var Captcha_answers [][]string
+var BannerNum int
 
 func Load_conf() { 
     cfg, err := ini.LoadSources(
@@ -34,6 +35,8 @@ func Load_conf() {
     Err_check(err)
 
     SiteName = cfg.Section("").Key("site name").String()
+    BannerNum, err = cfg.Section("").Key("banner num").Int()
+    Err_check(err)
     TLD = cfg.Section("").Key("tld").String()
     BP = cfg.Section("").Key("base path").String()
     URL_bl = cfg.Section("").Key("url blacklist").String()

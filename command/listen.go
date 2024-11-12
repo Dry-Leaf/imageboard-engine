@@ -46,7 +46,7 @@ func Listen() {
     mux.HandleFunc("/im/vid/", Vidget)
     mux.HandleFunc("/im/user/", User_actions)
     mux.HandleFunc("/im/search/", Search)
-
+    mux.HandleFunc("/im/banner/", Get_banner)
 
     srv := &http.Server {
         Addr: ":1024",
@@ -83,6 +83,8 @@ func hongMeiling(next http.Handler) http.Handler {
                 sel = 6
             case url == "search":
                 sel = 7
+            case url == "banner":
+                sel = 0
         }
 
         climiter := limiter.GetLimiter(r.Header.Get("X-Real-IP"), sel)

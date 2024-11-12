@@ -74,13 +74,11 @@ tar -xzvf nginx-(current version).tar.gz
 
 git clone https://github.com/vision5/ngx_devel_kit
 
-git clone https://github.com/openresty/set-misc-nginx-module
-
 git clone https://github.com/yaoweibin/ngx_http_substitutions_filter_module
 
 cd nginx-(current version)
 
-sudo ./configure --add-module=../ngx_devel_kit --add-module=../set-misc-nginx-module --add-module=../ngx_http_substitutions_filter_module
+sudo ./configure --add-module=../ngx_devel_kit --add-module=../ngx_http_substitutions_filter_module
 
 sudo make & make install 
 
