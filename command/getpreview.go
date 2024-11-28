@@ -35,13 +35,13 @@ const (
 )
 
 //gets a random banner, the names if which should be numbers 0-indexed
-func Get_banner(w http.ResponseWriter, req *http.Request) { 
+func Get_banner(w http.ResponseWriter, req *http.Request) {
     num := strconv.Itoa(rand.Intn(BannerNum))
     path := BP + "/head/resources/banners/" + num + ".webp"
     dat, err := os.ReadFile(path)
     Err_check(err)
 
-    w.Write(dat)
+    w.Write(dat)                    
 }
 
 //retrieves post request
