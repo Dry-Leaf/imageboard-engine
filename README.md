@@ -1,13 +1,4 @@
-# Ogai
-
 An image board engine written in golang.
-
-Live instance:
-
-- https://sayachan.pl/ 
-- https://[200:c5b0:cfeb:5db:c054:d66d:eb6f:7412]:4443/ (fastest, version 0.5 or above)
-- https://s4taqq6ysw2wde4rcmq6xk5vvgmab3cuqtykwfq2padiwh2rncjfxcyd.onion:4443/
-- https://mwmrm4yaihoyk7acurfnmfiuucn1ozeyaewo15zdttfeuek5rsto.loki:4443/
 
 ## Advantages
 
@@ -58,7 +49,7 @@ go mod init modules
 
 go mod tidy 
 
-go build --tags "fts5" -o ogai *.go
+go build --tags "fts5" -o engine *.go
 
 `Note`
 
@@ -102,8 +93,3 @@ code block: \`\`\`
 shift jis: \@\@\@
                example
            \@\@\@
-
-## Project status
-As of 10/1/23, Ogai is considered feature complete. 
-
-Future updates are possible, but no longer a priority for me.
