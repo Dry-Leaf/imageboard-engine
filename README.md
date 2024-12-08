@@ -41,10 +41,6 @@ sudo apt install golang-go/bookworm-backports
 
 sudo apt install yt-dlp/bookworm-backports
 
-git clone https://gitgud.io/nvtelen/ogai
-
-cd ogai/command
-
 go mod init modules
 
 go mod tidy 
