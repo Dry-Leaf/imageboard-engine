@@ -51,6 +51,10 @@
     .bantbl:target, .deltbl:target {
         display: table;
     }
+
+    .content {
+        overflow: scroll;
+    }
 </style>
 </head>
 
@@ -76,7 +80,7 @@
        <td><div class="entry">{{.Mod}}</div></td>
        <td><div class="entry">{{.Identifier}}</div></td>
        <td><div class="entry textentry">{{.Expiry}}</div></td>
-       <td><div class="entry textentry">{{.Content}}</div></td>
+       <td><div class="entry textentry content">{{.Content}}</div></td>
        <td><div class="entry textentry">{{.Reason}}</div></td>
        <td><div class="unban">
            <a href="/im/unban/?identifier={{.Identifier}}&expiry={{.Expiry}}">Remove Ban</a>
@@ -100,7 +104,7 @@
        <td><div class="entry">{{.Mod}}</div></td>
        <td><div class="entry">{{.Identifier}}</div></td>
        <td><div class="textentry">{{.DTime}}</div></td>
-       <td><div class="entry textentry">{{.Content}}</div></td>
+       <td><div class="entry textentry content">{{.Content}}</div></td>
        <td><div class="entry textentry">{{.Reason}}</div></td>
     {{end}}{{end}}
 </table>
