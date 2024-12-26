@@ -333,7 +333,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
 				} else {file_pre = "audio_image"}
             }
            
-            ofname := []rune(handler.Filename)
+            ofname := []rune(html.EscapeString(handler.Filename))
             rem := len(ofname) - 50
             if rem < 0 {
                 rem = 0
