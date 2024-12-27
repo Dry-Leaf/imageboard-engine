@@ -94,6 +94,6 @@ func hongMeiling(next http.Handler) http.Handler {
             return
         }
 
-        next.ServeHTTP(w, r)    
+        Session_manager.LoadAndSave(next).ServeHTTP(w, r)    
     })
 }

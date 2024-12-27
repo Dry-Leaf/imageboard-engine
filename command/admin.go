@@ -59,7 +59,10 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
     ctx := req.Context()
 
     userSession := Logged_in_check(w, req)
-    if userSession == nil {return}
+    if userSession == false {return}
+
+    acc_type := Acc_type(Session_manager.GetInt(req.Context(), "acc_type"))
+    username := Session_manager.GetInt(req.Context(), "username")
 
     //use maps for these(no duplicates)
     actions := req.FormValue("actions")
@@ -89,7 +92,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
         days := req.FormValue("days")
 
         if strings.HasPrefix(actions, "Ban") {     
-            if userSession.acc_type == Maid {
+            if acc_type == Maid {
                 http.Error(w, "Unauthorized.", http.StatusUnauthorized)
                 return
             }
@@ -108,9 +111,9 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
             }
 
             if duration >= 0 {
-                _, err = new_tx.ExecContext(ctx, ban_str, id, board, ban_expiry.Format(time.RFC1123), userSession.username, reason)
+                _, err = new_tx.ExecContext(ctx, ban_str, id, board, ban_expiry.Format(time.RFC1123), username, reason)
             } else { //permaban
-                _, err = new_tx.ExecContext(ctx, ban_str, id, board, -1, userSession.username, reason)
+                _, err = new_tx.ExecContext(ctx, ban_str, id, board, -1, username, reason)
             }
             Err_check(err)
 
@@ -123,7 +126,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
         }
 
         if strings.HasSuffix(actions, "Delete") {
-            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, reason)
+            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), username, reason)
 			Err_check(err)
 
 	    delete_tree(id, board, new_tx, ctx)
@@ -174,7 +177,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
                 defer Build_catalog(b)
             }
 
-            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), userSession.username, "All Removed.")
+            _, err = new_tx.ExecContext(ctx, delete_log_str, id, board, time.Now().In(Nip).Format(time.UnixDate), username, "All Removed.")
             Err_check(err)
             _, err = new_tx.ExecContext(ctx, delete_all_posts_str, id, board)
             Err_check(err)
@@ -203,7 +206,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
 		//for pinning and locking
         if chain_str, present := thread_map[actions]; present  {
-            if userSession.acc_type == Maid {
+            if acc_type == Maid {
                 http.Error(w, "Unauthorized.", http.StatusUnauthorized)
                 return
             }
@@ -229,7 +232,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
         http.Redirect(w, req, req.Header.Get("Referer"), 302)
     } else if actiontype == "on_site" {
-        if userSession.acc_type != Admin {
+        if acc_type != Admin {
             http.Error(w, "Unauthorized.", http.StatusUnauthorized)
             return
         }
@@ -318,7 +321,7 @@ func delete_tree(id, board string, new_tx *sql.Tx, ctx context.Context) {
 
 func Unban(w http.ResponseWriter, req *http.Request) {
     userSession := Logged_in_check(w, req)
-    if userSession == nil {return}
+    if userSession == false {return}
 
     ctx := req.Context()
 
@@ -343,7 +346,9 @@ func Unban(w http.ResponseWriter, req *http.Request) {
 //the console
 func Load_console(w http.ResponseWriter, req *http.Request) {
     userSession := Logged_in_check(w, req)
-    if userSession == nil {return}
+    if userSession == false {return}
+
+    acc_type := Acc_type(Session_manager.GetInt(req.Context(), "acc_type"))
 
     //put this in a function, with the query string being an input. Every query will return an array of posts
     conn, err := sql.Open("sqlite3", DB_uri)
@@ -354,7 +359,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
 
     //time control
     sdate :=  strings.ReplaceAll(req.FormValue("sdate"), "-", "")
-    if userSession.acc_type == Maid {
+    if acc_type == Maid {
 	now := time.Now().In(Nip)
 	then := now.Add(time.Duration(-72) * time.Hour)
         sdate = then.Format("20060102")
@@ -461,7 +466,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
         mostrecent_temp, err := mostrecent_temp.ParseFiles(BP + "/templates/console.html", BP + "/templates/snippet.html")
         Err_check(err)
 
-        results := Query_results{Posts: most_recent, Auth: userSession.acc_type}
+        results := Query_results{Posts: most_recent, Auth: acc_type}
 	err = mostrecent_temp.Execute(w, results)
 	Err_check(err)
     }
@@ -621,9 +626,10 @@ func DB_optomize() {
 
 func Load_log(w http.ResponseWriter, req *http.Request) {
     userSession := Logged_in_check(w, req)
-    if userSession == nil {return}
-
-    if userSession.acc_type == Maid {
+    if userSession == false {return}
+    
+    acc_type := Acc_type(Session_manager.GetInt(req.Context(), "acc_type"))
+    if acc_type == Maid {
         http.Error(w, "Unauthorized.", http.StatusUnauthorized)
         return
     }

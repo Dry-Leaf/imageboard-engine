@@ -65,7 +65,6 @@ func Delete_file(file_path, file_name, imgprev string) {
 }
 
 func main() {
-
     Load_conf()
 
     file, err := os.OpenFile(BP + "error.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -105,5 +104,7 @@ func main() {
         Build_catalog(board)
         Build_rss(board, "")
     }
+
+    Sm_setup()
     Listen()
 }

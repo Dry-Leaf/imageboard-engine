@@ -8,14 +8,15 @@ import (
 
     "github.com/alexedwards/argon2id"
     _ "github.com/mattn/go-sqlite3"
-    "github.com/google/uuid"
+    "github.com/alexedwards/scs/v2"
+    //"github.com/google/uuid"
 )
 
 type Acc_type int
 const (
-    Admin     Acc_type = iota
+    Maid     Acc_type = iota
     Mod
-    Maid
+    Admin
 )
 
 const (
@@ -74,16 +75,12 @@ var Argon_params = &argon2id.Params{
 	KeyLength:   32,
 }
 
-type session struct {
-    username string
-    expiry   time.Time
-    acc_type Acc_type
-}
+var Session_manager *scs.SessionManager
 
-var Sessions = map[string]*session{}
-
-func (s session) IsExpired() bool {
-    return s.expiry.Before(time.Now().In(Nip))
+func Sm_setup() {
+    Session_manager = scs.New()
+    Session_manager.Lifetime = 20 * time.Minute
+    //Session_manager.Cookie.Secure = false
 }
 
 func Admin_init() {
@@ -191,20 +188,7 @@ func Token_check (w http.ResponseWriter, req *http.Request) {
     w.Write([]byte(html_head + html_tologin_head + `<p>Account created.</p>` + html_foot))
 }
 
-func Account_refresh(w http.ResponseWriter, sessionToken string) {
-    expiresAt := time.Now().In(Nip).Add(10 * time.Minute)
-    Sessions[sessionToken].expiry = expiresAt
-
-    http.SetCookie(w, &http.Cookie{
-        Name:    "session_token",
-        Value:   sessionToken,
-        Expires: expiresAt,
-        Path: "/",
-    })
-}
-
 func Credential_check (w http.ResponseWriter, req *http.Request) {
-
     if Request_filter(w, req, "POST", 1 << 9) == 0 {return}
     if err := req.ParseMultipartForm(1 << 9); err != nil {
         http.Error(w, "Request size exceeds limit.", http.StatusBadRequest)
@@ -247,76 +231,31 @@ func Credential_check (w http.ResponseWriter, req *http.Request) {
         return
     }
 
-    sessionToken := uuid.NewString()
-    expiresAt := time.Now().In(Nip).Add(10 * time.Minute)
-
-    Sessions[sessionToken] = &session{
-        username: username,
-        expiry:   expiresAt,
-        acc_type: acc_type,
-    }
-
-    http.SetCookie(w, &http.Cookie{
-        Name:    "session_token",
-        Value:   sessionToken,
-        Expires: expiresAt,
-        Path: "/",
-    })
-
+    Session_manager.Put(req.Context(), "username", username)
+    Session_manager.Put(req.Context(), "acc_type", int(acc_type))
+    
     w.Write([]byte(html_head + html_toentrance_head + `<p>Welcome.</p>` + html_foot))
 }
 
-func Logged_in_check(w http.ResponseWriter, req *http.Request) *session {
-    c, err := req.Cookie("session_token")
+func Logged_in_check(w http.ResponseWriter, req *http.Request) bool {
+    un := Session_manager.GetString(req.Context(), "username")
 
-    if err != nil {
-        if err == http.ErrNoCookie {
-            http.Error(w, "Unauthorized.", http.StatusUnauthorized)
-            return nil
-        }
-        w.WriteHeader(http.StatusBadRequest)
-        return nil
-    }
-
-    sessionToken := c.Value
-    userSession, exists := Sessions[sessionToken]
-    if !exists {
+    if un == "" {
         http.Error(w, "Unauthorized.", http.StatusUnauthorized)
-        return nil
+        return false
     }
-
-    if userSession.IsExpired() {
-        delete(Sessions, sessionToken)
-        http.Error(w, "Session expired.", http.StatusUnauthorized)
-        return nil
-    } else {Account_refresh(w, sessionToken)}
-
-    return userSession
+    return true
 }
 
 //account exit 
 func Logout(w http.ResponseWriter, req *http.Request) {
-    c, err := req.Cookie("session_token")
+    userSession := Logged_in_check(w, req)
 
-    if err != nil {
-        if err == http.ErrNoCookie {
-            http.Error(w, "Unauthorized.", http.StatusUnauthorized)
-            return
-        }
-        w.WriteHeader(http.StatusBadRequest)
+    if userSession == false {
         return
     }
 
-    sessionToken := c.Value
-
-    delete(Sessions, sessionToken)
-
-    http.SetCookie(w, &http.Cookie{
-        Name:    "session_token",
-        Value:   "",
-        Expires: time.Now(),
-        Path: "/",
-    })
+    Session_manager.Clear(req.Context())
 
     w.Write([]byte(html_head + html_tohome_head + `<p>Logged out.</p>` + html_foot))
 }
