@@ -307,20 +307,11 @@ func Build_thread(parent string, board string) { //will accept argument for boar
     Err_check(err)
     defer f.Close()
 
-    if err == nil {
-        var thr Thread
-
-        if sub != "" {
-            thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board],
-                Posts: posts, Subject: sub,
-                Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
-        } else {
-            thr = Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board], Posts: posts, 
+    thr := Thread{BoardN: board, TId: parent, BoardDesc: Board_map[board],
+            Posts: posts, Subject: sub,
             Header: Board_names, HeaderDescs: Board_descs, SThemes: Themes}
-        }
-        threadtemp.Execute(f, thr)
-    }
-
+                
+    threadtemp.Execute(f, thr)
 }
 
 func Build_rss(board, parent string, newpost ...bool) {
