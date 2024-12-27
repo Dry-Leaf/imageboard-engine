@@ -29,7 +29,7 @@ var Captchas []string
 var Captcha_answers [][]string
 var BannerNum int
 
-func Load_conf() { 
+func Load_conf() {
     cfg, err := ini.LoadSources(
         ini.LoadOptions{AllowBooleanKeys: true,}, "ogai.ini")
     Err_check(err)

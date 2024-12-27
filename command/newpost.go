@@ -122,25 +122,18 @@ func New_post(w http.ResponseWriter, req *http.Request) {
         return
     }
 
-    c, err := req.Cookie("session_token")
+    userSession := Session_manager.Exists(req.Context(), "username")
 
-    if err == nil {
-        sessionToken := c.Value
-        userSession, exists := Sessions[sessionToken]
-        if exists {
-            if userSession.IsExpired() {
-                delete(Sessions, sessionToken)
-            } else {
-                Account_refresh(w, sessionToken)
-                switch {
-                    case userSession.acc_type == Admin:
-                        option += " admin"
-                    case userSession.acc_type == Mod:
-                        option += " moderator"
-                    case userSession.acc_type == Maid:
-                        option += " maid"
-                }   
-    }}} else {
+    if userSession == true {
+        switch Acc_type(Session_manager.GetInt(req.Context(), "acc_type")) {
+            case Admin:
+                option += " admin"
+            case Mod:
+                option += " moderator"
+            case Maid:
+                option += " maid"
+        }   
+    } else {
         captcha_num := req.FormValue("captcha_num")
         captcha_attempt := req.FormValue("cpt")
         if captcha_num != "" {
