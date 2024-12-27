@@ -62,7 +62,7 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
     if userSession == false {return}
 
     acc_type := Acc_type(Session_manager.GetInt(req.Context(), "acc_type"))
-    username := Session_manager.GetInt(req.Context(), "username")
+    username := Session_manager.GetString(req.Context(), "username")
 
     //use maps for these(no duplicates)
     actions := req.FormValue("actions")
