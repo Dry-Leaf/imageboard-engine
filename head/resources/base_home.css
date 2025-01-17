@@ -20,6 +20,10 @@ td, iframe {
     border: none;
 }
 
+#Newsrow iframe {
+    width: 95%;
+}
+
 .hlogo {
     width: 21vw;
     content: url("logo.svg");

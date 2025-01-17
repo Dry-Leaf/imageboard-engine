@@ -67,7 +67,17 @@ cd nginx-(current version)
 
 sudo ./configure --add-module=../ngx_devel_kit --add-module=../ngx_http_substitutions_filter_module
 
-sudo make & make install 
+sudo make & make install
+
+## Post compilate instructions
+
+Rename sample_ogai.ini to ogai.ini
+
+Fill in the values in ogai.ini
+
+Start Ogai
+
+Create an admin account with the token `500` on the `new_account.html` page
 
 ## Post Formatting
 quote: >example
