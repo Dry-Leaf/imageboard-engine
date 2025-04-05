@@ -298,7 +298,7 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                         if !gotPacket {break}
                             
                         if packet.Type() == reisen.StreamVideo {
-						    cstream := vss[packet.StreamIndex()]
+                            cstream := vss[0]
                             videoFrame, gotFrame, err := cstream.ReadVideoFrame()
                             Err_check(err)
                             if !gotFrame {break}
