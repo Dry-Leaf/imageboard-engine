@@ -107,11 +107,14 @@ var readSQLStrs = [...]string {
     `SELECT Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
                 COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option,
                 Pinned, Locked, Anchored
-                FROM posts WHERE Id = ? AND Board = ?`,
+                FROM posts
+                WHERE Id = ? AND Board = ?`,
     //thread_body     
     `SELECT * FROM (
                 SELECT Id, Content, Time, Parent, COALESCE(File, '') AS File, COALESCE(Filename, '') AS Filename, 
-                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option FROM posts 
+                COALESCE(Fileinfo, '') AS Fileinfo, COALESCE(Filemime, '') AS Filemime, COALESCE(Imgprev, '') Imgprev, Option,
+                Pinned, Locked, Anchored
+                FROM posts 
                 WHERE Parent = ? AND Board = ? AND Id != Parent ORDER BY Id DESC LIMIT 5)
                 ORDER BY Id ASC`,
     //thread_coll            
