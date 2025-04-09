@@ -138,8 +138,6 @@ func get_threads(board string) []*Thread {
 
     parent_coll_stmt := stmts[parent_coll_stmt]
     thread_head_stmt := stmts[thread_head_stmt]
-    thread_body_stmt := stmts[thread_body_stmt]
-    update_rep_stmt := stmts[update_rep_stmt]
 
     var board_body []*Thread
 
@@ -160,36 +158,12 @@ func get_threads(board string) []*Thread {
         Query_err_check(err)
 
         pst_coll = append(pst_coll, &fstpst)
-
-        thread_rows, err := thread_body_stmt.Query(fstpst.Id, board)
-        Err_check(err)
-        defer thread_rows.Close()
-
-        for thread_rows.Next() {
-            var cpst Post
-	    cpst.BoardN = board
-	    cpst.OnBoard = true
-
-            err = thread_rows.Scan(&cpst.Id, &cpst.Content, &cpst.Time, &cpst.Parent, &cpst.File,
-                &cpst.Filename, &cpst.Fileinfo, &cpst.Filemime, &cpst.Imgprev, &cpst.Option)
-            Err_check(err)
-
-            pst_coll = append(pst_coll, &cpst)
-        }
-
-        for _, pst := range pst_coll[1:] {
-            rep_rows, err := update_rep_stmt.Query(pst.Id, board)
-            Err_check(err)
-
-            for rep_rows.Next() {
-        var replier int
-        rep_rows.Scan(&replier)
-        pst.Replies = append(pst.Replies, replier)
-            }
-            rep_rows.Close()
-        }
-
         fstpstid := strconv.Itoa(fstpst.Id)
+
+        rst_psts, err := get_posts(fstpstid, board, thread_body_stmt)
+        Err_check(err)
+
+        pst_coll = append(pst_coll, rst_psts...)
 
         sub := Get_subject(fstpstid, board)
         omitted_posts, omitted_files := Get_omitted(fstpstid, board)
@@ -208,12 +182,12 @@ func get_threads(board string) []*Thread {
 }
 
 //for individual threads
-func get_posts(parent string, board string) ([]*Post, error) {
+func get_posts(parent string, board string, sql_stmt ReadSQL) ([]*Post, error) {
 
     stmts := Checkout()
     defer Checkin(stmts)
 
-    update_stmt := stmts[update_stmt]
+    update_stmt := stmts[sql_stmt]
     update_rep_stmt := stmts[update_rep_stmt]
 
     rows, err := update_stmt.Query(parent, board)
@@ -292,7 +266,7 @@ func Build_board(board string) {
 }
 
 func Build_thread(parent string, board string) { //will accept argument for board and thread number
-    posts, err := get_posts(parent, board)
+    posts, err := get_posts(parent, board, update_stmt)
     if len(posts) == 0 {return} 
     sub := Get_subject(parent, board)
 
