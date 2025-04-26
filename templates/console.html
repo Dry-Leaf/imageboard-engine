@@ -26,6 +26,7 @@ admbox threadwrap .post {
 </style>
 </head>
 
+{{$ct := .CSRFT}}
 <body>
     <admbox>
         <threadwrap>
@@ -65,6 +66,7 @@ admbox threadwrap .post {
                 <div class="identifier">{{.Identifier}}</div><br>
                 <div class="identifier">{{.Hash}}</div>
                 <form action="/im/mod/" enctype="multipart/form-data" method = "Post">
+                    <input type="hidden" name="csrft" value="{{$ct}}">
                     <input type="hidden" name="actiontype" value="on_posts">
                     <input type="hidden" name="parents" value="{{.Parent}}">
                     <input type="hidden" name="id" value="{{.Id}}">
