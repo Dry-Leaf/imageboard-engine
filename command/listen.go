@@ -20,6 +20,7 @@ var admf_map = map[string]bool {
     "mod": true,
     "log": true,
     "unban": true,
+    "admin": true,
 }
 
 func Listen() {
@@ -41,6 +42,7 @@ func Listen() {
     mux.HandleFunc("/im/logout/", Logout)
     mux.HandleFunc("/im/console/", Load_console)
     mux.HandleFunc("/im/log/", Load_log)
+    mux.HandleFunc("/im/admin/", Load_admin_page)
     mux.HandleFunc("/im/mod/", Moderation_actions)
     mux.HandleFunc("/im/unban/", Unban)
     mux.HandleFunc("/im/vid/", Vidget)

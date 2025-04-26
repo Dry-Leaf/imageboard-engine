@@ -352,6 +352,21 @@ func Unban(w http.ResponseWriter, req *http.Request) {
     http.Redirect(w, req, req.Header.Get("Referer"), 302)
 }
 
+func Load_admin_page(w http.ResponseWriter, req *http.Request) {
+    userSession := Logged_in_check(w, req)
+    if userSession == false {return}
+
+    admin_temp := template.New("admin.html").Funcs(Filefuncmap)
+    admin_temp, err := admin_temp.ParseFiles(BP + "/templates/admin.html")
+    Err_check(err)
+
+    csrf_token := Session_manager.GetString(req.Context(), "csrf_token")
+    data := map[string]string{"CSRFT": csrf_token}
+    
+    err = admin_temp.Execute(w, data)
+    Err_check(err) 
+}
+
 //the console
 func Load_console(w http.ResponseWriter, req *http.Request) {
     userSession := Logged_in_check(w, req)
