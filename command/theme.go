@@ -15,6 +15,7 @@ func Switch_theme(w http.ResponseWriter, req *http.Request) {
             Path: "/",
         }
 
+    w.Header().Set("Clear-Site-Data", "\"cache\"")
     http.SetCookie(w, cookie)    
 
     http.Redirect(w, req, req.Header.Get("Referer"), 302)
