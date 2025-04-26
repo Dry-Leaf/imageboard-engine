@@ -80,6 +80,7 @@ var Session_manager *scs.SessionManager
 func Sm_setup() {
     Session_manager = scs.New()
     Session_manager.Lifetime = 20 * time.Minute
+    Session_manager.Cookie.SameSite = http.SameSiteStrictMode
     //Session_manager.Cookie.Secure = false
 }
 
@@ -231,8 +232,11 @@ func Credential_check (w http.ResponseWriter, req *http.Request) {
         return
     }
 
+    csrf_token := Rand_gen()
+    
     Session_manager.Put(req.Context(), "username", username)
     Session_manager.Put(req.Context(), "acc_type", int(acc_type))
+    Session_manager.Put(req.Context(), "csrf_token", csrf_token)
     
     w.Write([]byte(html_head + html_toentrance_head + `<p>Welcome.</p>` + html_foot))
 }

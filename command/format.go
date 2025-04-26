@@ -4,7 +4,8 @@ import (
     "strings"
     "bufio"
     "regexp"
-    "math/rand"
+    "crypto/rand"
+    "encoding/base64"
 )
 
 var nlreg = regexp.MustCompile("\n")
@@ -44,14 +45,11 @@ const (
 )
 
 func Rand_gen() string {
-    result := ""
+    token := make([]byte, 32)
+    _, err := rand.Read(token)
+    Err_check(err)
 
-    for i := 0; i < 8; i++ {
-        c := rand_charset[rand.Intn(len(rand_charset))]
-    result += string(c)
-    }
-
-    return result
+    return base64.URLEncoding.EncodeToString(token)
 }
 
 

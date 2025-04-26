@@ -32,6 +32,7 @@ var thread_map = map[string]string{"Pin": pin_str, "Unpin": unpin_str, "Lock": l
 type Query_results struct {
     Posts []*Post
     Auth Acc_type
+    CSRFT string
 }
 
 type Ban_result struct {
@@ -60,6 +61,14 @@ func Moderation_actions(w http.ResponseWriter, req *http.Request) {
 
     userSession := Logged_in_check(w, req)
     if userSession == false {return}
+
+    real_csrf_token := Session_manager.GetString(req.Context(), "csrf_token")
+    given_csrf_token := req.FormValue("csrft")
+
+    if real_csrf_token != given_csrf_token {
+        http.Error(w, "Unauthorized.", http.StatusUnauthorized)
+        return
+    }
 
     acc_type := Acc_type(Session_manager.GetInt(req.Context(), "acc_type"))
     username := Session_manager.GetString(req.Context(), "username")
@@ -466,7 +475,8 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
         mostrecent_temp, err := mostrecent_temp.ParseFiles(BP + "/templates/console.html", BP + "/templates/snippet.html")
         Err_check(err)
 
-        results := Query_results{Posts: most_recent, Auth: acc_type}
+	csrf_token := Session_manager.GetString(req.Context(), "csrf_token")
+        results := Query_results{Posts: most_recent, Auth: acc_type, CSRFT: csrf_token}
 	err = mostrecent_temp.Execute(w, results)
 	Err_check(err)
     }
