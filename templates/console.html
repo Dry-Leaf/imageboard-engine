@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/resources/console.css">
     <link rel="stylesheet" href="/resources/default.css">
     <script async src="/resources/thread.js" defer></script>
+    <link rel="preload" href="/resources/m-plus-2-v5-latin_japanese-regular.woff2" as="font" type="font/woff2" crossorigin>
     <noscript><style> .prev { display: none !important} </style></noscript>
 
 <style>
@@ -32,7 +33,7 @@ admbox threadwrap .post {
         <threadwrap>
             <box class="controls">
     <form action="/im/console/" enctype="multipart/form-data" method = "Post">
-    {{if ne .Auth 2}}
+    {{if ne .Auth 0}}
       Start:
       <input type="date" name="sdate">
       <input type="time" name="stime">
