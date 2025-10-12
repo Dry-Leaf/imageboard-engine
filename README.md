@@ -54,11 +54,13 @@ sudo lxc-start -n ogai
 
 sudo lxc-attach -n ogai
 
+echo "deb http://deb.debian.org/debian bookworm-backports main" | sudo tee /etc/apt/sources.list.d/backports.list
+
 ***
 
 sudo apt install build-essential cmake git libvips-dev libavformat-dev libswresample-dev libavcodec-dev libavutil-dev libavformat-dev libswscale-dev
 
-sudo apt install golang-go/bookworm-backports
+sudo apt -t bookworm-backports install golang-go
 
 `Or compile the latest version of Go`
 
