@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<head>
+    <title>{{.Title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="alternate" type="application/rss+xml"
+      title="whole site RSS feed"
+      href="rss.xml"/>
+
+    <link rel="stylesheet" href="/resources/base_home.css">
+    <link rel="stylesheet" href="/resources/default_home.css">
+    <script src="/resources/home.js" defer></script>
+    <script src="/resources/dropdown.js" defer></script>
+    <link rel="preload" href="/resources/m-plus-2-v5-latin_japanese-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+    <noscript>
+        <style>
+            .hoptions {display: none;}
+        </style>
+    </noscript>
+</head>
+
+<body class="hbody">
+
+<center>
+<img class="logo hlogo">
+</center>
+
+<noscript>
+<span class="nojsmenu">
+<a href="rules.html">Rules</a>
+<a href="about.html">About</a>
+<a href="boards.html">Boards</a>
+<a href="news.html">News</a>
+</span>
+</noscript>
+
+<hr class="hline"><br>
+
+<center>
+<table border="0" class="tcon">
+
+<tbody>
+<!-- board name range -->
+    {{$Descs := .HeaderDescs}}
+    {{range $index, $name :=  .Header}}
+    {{if eq 0 $index}}<tr class="bmap">
+    {{else if startrow 4 $index}}</tr><tr class="bmap">{{end}}
+    <td><a class="blink" href="{{$name}}">/{{$name}}/ - {{index $Descs $index}}</a></td>{{end}}
+    </tr>
+<!-- board name range -->
+</tbody></table>
+<br>
+
+<hr class="hline"><br>
+
+<table class="hcon tcon" border="0">
+<tbody><tr class="hoptions">
+<td class="hop fhop" id="Main">Main</td> 
+<td class="hop" id="Rules" style="background-color: transparent;">Rules</td> 
+<td class="hop" id="About" style="background-color: transparent;">About</td> 
+<td class="hop" id="Boards" style="background-color: transparent;">Boards</td> 
+<td class="hop" id="News" style="background-color: transparent;">News</td>
+</tr>
+
+<tr id="Mainrow" class="menurow" style="visibility: visible;">
+<td colspan="5" class="recpost">
+
+<table class="recpost" border="0" style="clear: left; float: left; padding-left: 10px;">
+{{range .Latest}}
+    <tr class="rpost"><td>
+    <a title="{{.ContentFull}}" href="/{{.BoardN}}/{{.Parent}}.html#no{{.Id}}">
+        <p>/{{.BoardN}}/ - {{.Content}}</p>
+    </a>
+    </td></tr>
+{{end}}
+</table>
+
+<table border="0" style="position: relative; left: 8vw; padding-top: 10px;">
+{{range .Thumbs}}
+    <tr><td class="mimg">
+    <a href="/{{.BoardN}}/{{.Parent}}.html#no{{.Id}}">
+        <img src="/{{.BoardN}}/Files/{{.Imgprev}}" class="mim">
+    </a>
+    </td></tr>
+{{end}}
+</table>
+</td>
+</tr>
+
+<tr id="Newsrow" class="menurow" style="visibility: collapse;">
+<td colspan="5">
+    <iframe src="news.html" title="description"></iframe> 
+</td>
+</tr>
+
+<tr id="Aboutrow" class="menurow" style="visibility: collapse;">
+<td colspan="5">
+    <iframe src="about.html" title="description"></iframe> 
+</td>
+</tr>
+
+<tr id="Rulesrow" class="menurow" style="visibility: collapse;">
+<td colspan="5">
+    <iframe src="rules.html" title="description"></iframe> 
+</td>
+</tr>
+
+<tr id="Boardsrow" class="menurow" style="visibility: collapse;">
+<td colspan="5">
+    <iframe src="boards.html" title="description"></iframe> 
+</td>
+</tr>
+
+</tbody></table>
+</center>
+<br>
+
+    <form id="thememenu" class="thememenu" action="/im/theme/" method="Get">
+        <select name="theme">
+            <option value="default">Styles</option>
+             <option value="default">default</option>{{range .SThemes}}
+              <option value="{{.}}">{{.}}</option>{{end}}
+        </select>
+        <noscript><input type="submit" value="Select"></noscript>
+    </form>
+
+</body>
+</html>

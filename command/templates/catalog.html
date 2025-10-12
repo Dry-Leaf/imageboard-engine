@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>/{{.Name}}/ - {{.Desc}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/resources/base.css">
+    <link rel="stylesheet" href="/resources/default.css">
+    <script src="/resources/thread.js" defer></script>
+    <script src="/resources/dropdown.js" defer></script>
+    <link rel="preload" href="/resources/m-plus-2-v5-latin_japanese-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+</head>{{$name := .Name}}
+
+<body>{{$Descs := .HeaderDescs}}
+<p class="headerblock">{{range $index, $name :=  .Header}}
+    <a class="header" href="/{{$name}}/catalog.html" title="{{index $Descs $index}}">/{{$name}}/</a>{{end}}
+    <a class="header" href="/search.html" title="search page">search</a>
+    <a class="header" href="/" title="front page">home</a>
+</p><br>
+
+<center>
+<img class="bannerimg" src="/im/banner/" height="100" width="300">
+<p class="boardinfo">/{{.Name}}/ - {{.Desc}} Catalog</p></td>
+</center>
+<hr>
+
+<a class="navi" href="/{{.Name}}/">Return</a><br><br>
+<table class="catalog">{{if .Posts}}{{$subs := .Subjects}}{{range $index, $value := .Posts}}
+{{if eq 0 $index}}<tr>
+{{else if startrow 5 $index}}</tr><tr>{{end}}
+<td><catcon>
+<label><subject>{{index $subs $index}}</subject></label><br>
+<a href="{{.Id}}.html"><img class="catimg" src={{if audiocheck .Filemime}}{{if eq .Imgprev "audio_image"}}'/resources/audio_image'{{else}}'/{{$name}}/Files/{{.Imgprev}}'{{end}}{{else}}"Files/{{.Imgprev}}"{{end}}></a><br>
+<p>{{.Content}}</p></catcon></td>{{end}}</tr>
+{{end}}</table>
+
+    <form id="thememenu" class="thememenu" action="/im/theme/" method="Get">
+        <select name="theme">
+            <option value="default">Styles</option>
+             <option value="default">default</option>{{range .SThemes}}
+              <option value="{{.}}">{{.}}</option>{{end}}
+        </select>
+        <noscript><input type="submit" value="Select"></noscript>
+    </form>
+</body>
+</html>
