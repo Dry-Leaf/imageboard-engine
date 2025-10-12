@@ -138,7 +138,7 @@ func get_home() ([]*Hp, []*Ht) {
 
 func Build_catalog(board string) {
     cattemp := template.New("catalog.html").Funcs(catfuncmap)
-    cattemp, err := cattemp.ParseFiles(BP + "/templates/catalog.html")
+    cattemp, err := cattemp.ParseFS(Templates, "templates/catalog.html")
     Err_check(err)
 
     path := BP + "head/" + board + "/"
@@ -158,7 +158,7 @@ func Build_catalog(board string) {
 
 func Build_home() {
     hometemp := template.New("home.html").Funcs(catfuncmap)
-    hometemp, err := hometemp.ParseFiles(BP + "/templates/home.html")
+    hometemp, err := hometemp.ParseFS(Templates, "templates/home.html")
     Err_check(err)
 
     path := BP + "head/"
@@ -177,7 +177,7 @@ func Build_home() {
 
 func Build_search() {
     searchtemp := template.New("search.html").Funcs(Filefuncmap)
-    searchtemp, err := searchtemp.ParseFiles(BP + "/templates/search.html", BP + "/templates/snippet.html")
+    searchtemp, err := searchtemp.ParseFS(Templates, "templates/search.html", "templates/snippet.html")
     Err_check(err)
 
     path := BP + "head/"

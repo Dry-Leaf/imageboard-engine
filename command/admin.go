@@ -357,7 +357,7 @@ func Load_admin_page(w http.ResponseWriter, req *http.Request) {
     if userSession == false {return}
 
     admin_temp := template.New("admin.html").Funcs(Filefuncmap)
-    admin_temp, err := admin_temp.ParseFiles(BP + "/templates/admin.html")
+    admin_temp, err := admin_temp.ParseFS(Templates, "templates/admin.html")
     Err_check(err)
 
     csrf_token := Session_manager.GetString(req.Context(), "csrf_token")
@@ -487,7 +487,7 @@ func Load_console(w http.ResponseWriter, req *http.Request) {
 
     if err == nil {
         mostrecent_temp := template.New("console.html").Funcs(Filefuncmap)
-        mostrecent_temp, err := mostrecent_temp.ParseFiles(BP + "/templates/console.html", BP + "/templates/snippet.html")
+        mostrecent_temp, err := mostrecent_temp.ParseFS(Templates, "templates/console.html", "templates/snippet.html")
         Err_check(err)
 
 	csrf_token := Session_manager.GetString(req.Context(), "csrf_token")
@@ -692,7 +692,7 @@ func Load_log(w http.ResponseWriter, req *http.Request) {
     }
 
     log_temp := template.New("log.html")
-    log_temp, err = log_temp.ParseFiles(BP + "/templates/log.html")
+    log_temp, err = log_temp.ParseFS(Templates, "templates/log.html")
     Err_check(err)
 
     results := Log_result{BRS: brs, DRS: drs}

@@ -33,9 +33,25 @@ Other
 - RSS support
 
 ## Compile Instructions
+
+### Optional steps
+I recommend doing this inside of an lxc container. Version 7 of libav breaks the reisen dependency.
+
+sudo lxc-create -t download -n ogai -- --dist debian --release bookworm --arch amd64
+
+sudo sed -i 's/LXC_IPV6_ENABLE="true"/LXC_IPV6_ENABLE="false"/' /etc/default/lxc-net
+
+sudo lxc-start -n ogai
+
+sudo lxc-attach -n ogai
+
+echo "deb http://deb.debian.org/debian bookworm-backports main" | sudo tee /etc/apt/sources.list.d/backports.list
+
+***
+
 sudo apt install build-essential cmake git libvips-dev libavformat-dev libswresample-dev libavcodec-dev libavutil-dev libavformat-dev libswscale-dev
 
-sudo apt install golang-go/bookworm-backports
+sudo apt -t bookworm-backports install golang-go
 
 `Or compile the latest version of Go`
 

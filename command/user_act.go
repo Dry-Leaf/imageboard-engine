@@ -230,7 +230,7 @@ func Search(w http.ResponseWriter, req *http.Request) {
     }
     
     search_temp := template.New("results.html").Funcs(Filefuncmap)
-    search_temp, err = search_temp.ParseFiles(BP + "/templates/results.html", BP + "/templates/snippet.html")
+    search_temp, err = search_temp.ParseFS(Templates, "templates/results.html", "templates/snippet.html")
     Err_check(err)
 
     result_struct := Search_results{Posts: results, Header: Board_names, HeaderDescs: Board_descs}
