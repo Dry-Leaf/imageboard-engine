@@ -43,7 +43,7 @@ Other
 
 ## Compile Instructions
 
-###Optional steps
+### Optional steps
 I recommend doing this inside of an lxc container. Version 7 of libav breaks the reisen dependency.
 
 sudo lxc-create -t download -n ogai -- --dist debian --release bookworm --arch amd64
