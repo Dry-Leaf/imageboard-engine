@@ -7,10 +7,14 @@ import (
     "errors"
     "strings"
     "time"
+    "embed"
     "math/rand"
 
     _ "github.com/mattn/go-sqlite3"
 )
+
+//go:embed templates/*
+var Templates embed.FS
 
 //structures used in templates
 type Post struct {
@@ -248,7 +252,7 @@ func get_rss(board, parent string) []*Post {
 
 func Build_board(board string) {
     boardtemp := template.New("board.html").Funcs(Filefuncmap)
-    boardtemp, err := boardtemp.ParseFiles(BP + "/templates/board.html", BP + "/templates/snippet.html")
+    boardtemp, err := boardtemp.ParseFS(Templates, "templates/board.html", "templates/snippet.html")
     Err_check(err)
 
     path := BP + "head/" + board + "/"
@@ -271,7 +275,7 @@ func Build_thread(parent string, board string) { //will accept argument for boar
     sub := Get_subject(parent, board)
 
     threadtemp := template.New("thread.html").Funcs(Filefuncmap)
-    threadtemp, err = threadtemp.ParseFiles(BP + "/templates/thread.html", BP + "/templates/snippet.html")
+    threadtemp, err = threadtemp.ParseFS(Templates, "templates/thread.html", "templates/snippet.html")
     Err_check(err)
 
     path := BP + "head/" + board + "/"
@@ -310,7 +314,7 @@ func Build_rss(board, parent string, newpost ...bool) {
   
 
     rsstemp := template.New("rss.xml").Funcs(Filefuncmap)
-    rsstemp, err := rsstemp.ParseFiles(BP + "/templates/rss.xml")
+    rsstemp, err := rsstemp.ParseFS(Templates, "templates/rss.xml")
     Err_check(err)
 
     path := BP + "head/" + board
@@ -326,3 +330,4 @@ func Build_rss(board, parent string, newpost ...bool) {
     crss := RSS{Board: board, TLD: TLD, Site_name: SiteName, Posts: posts}
     rsstemp.Execute(f, crss)
 }
+
