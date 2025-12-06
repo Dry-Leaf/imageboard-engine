@@ -381,7 +381,7 @@ pre+br {
 
 .shift_jis {
     font-family: 'saitamaar', 'MS Pgothic', 'MS Pゴシック', IPAMonaPGothic, 'IPA モナー Pゴシック', Monapo, Mona;
-    line-height: 15px;
+    line-height: 1.23em;
     font-size: 14px;
 }
 
