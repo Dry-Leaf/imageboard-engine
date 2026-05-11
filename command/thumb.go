@@ -3,11 +3,77 @@ package main
 import (
     "bytes"
     "image"
+    "encoding/xml"
+    "io"
+    "strings"
     _ "golang.org/x/image/webp"
     
     gih "github.com/corona10/goimagehash"
     "github.com/h2non/bimg"
 )
+
+func Sanitize_SVG(input []byte) ([]byte, error) {
+   decoder := xml.NewDecoder(bytes.NewReader(input))
+   var buffer bytes.Buffer
+   buffer.WriteString(xml.Header)
+   encoder := xml.NewEncoder(&buffer)
+
+   for {
+       token, err := decoder.Token()
+       if err == io.EOF {
+           break
+       }
+       if err != nil {
+           return nil, err
+       }
+
+       switch t := token.(type) {
+           case xml.ProcInst:
+               continue
+           case xml.StartElement:
+               tagName := strings.ToLower(t.Name.Local)
+               if tagName == "script" || tagName == "foreignobject" || tagName == "iframe" {
+                   if err := decoder.Skip(); err != nil {
+                       return nil, err
+                   }
+                   continue
+               }
+               var cleanAttrs []xml.Attr
+               for _, attr := range t.Attr {
+                   attrName := strings.ToLower(attr.Name.Local)
+                   attrValue := strings.ToLower(attr.Value)
+
+                   if attrName == "xmlns" {
+                       continue
+                   }
+                   
+                   if strings.HasPrefix(attrName, "on") {
+                       continue
+                   }
+                   if (attrName == "href" || strings.Contains(attrName, "href")) &&
+                       strings.HasPrefix(strings.TrimSpace(attrValue), "javascript:") {
+                           continue
+                   }
+
+                   cleanAttrs = append(cleanAttrs, attr)
+               }
+               t.Attr = cleanAttrs
+
+               if tagName == "svg" {
+                   t.Name.Space = "http://www.w3.org/2000/svg"
+               }
+               
+               token = t
+       }
+
+       if err := encoder.EncodeToken(token); err != nil {
+           return nil, err
+       }  
+   }
+
+   encoder.Flush()
+   return buffer.Bytes(), nil
+}
 
 func Make_thumb(file_path, file_pre string, file_buffer []byte, max_dim int) (int, int, string, error) {
 

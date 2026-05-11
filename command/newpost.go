@@ -13,6 +13,7 @@ import (
     "slices"
     "image/png"
     "database/sql"
+    "fmt"
 
     "github.com/zergon321/reisen"
     _ "github.com/mattn/go-sqlite3"
@@ -251,11 +252,23 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                 htadd_cond = true
                 file_buffer := bytes.NewBuffer(nil)
                 io.Copy(file_buffer, file)
+
+                finalBytes := file_buffer.Bytes()
+
+                if mime_type == "image/svg+xml" {
+                    cleanBytes, err := Sanitize_SVG(finalBytes)
+                    if err != nil {
+                        http.Error(w, "Invalid SVG structure.", http.StatusBadRequest)
+                        return
+                    }
+                    finalBytes = cleanBytes
+                }
  
-                width, height, ihash, cerr := Make_thumb(file_path, file_pre, file_buffer.Bytes(), 200)
+                width, height, ihash, cerr := Make_thumb(file_path, file_pre, finalBytes, 200)
                 hash = ihash
                 if cerr != nil {
                     //delete empty file
+                    fmt.Println(cerr)
                     Delete_file(file_path, file_name, "")
                     http.Error(w, "Corrupted image.", http.StatusBadRequest)
                     return
@@ -276,7 +289,8 @@ func New_post(w http.ResponseWriter, req *http.Request) {
                 }
 
                 file_info = image_gen_info(handler.Size, width, height)
-                io.Copy(f, file_buffer)
+                _, err = f.Write(finalBytes)
+                Err_check(err)
             } else { 
                 io.Copy(f, file)
                 file_info = generic_gen_info(handler.Size)
