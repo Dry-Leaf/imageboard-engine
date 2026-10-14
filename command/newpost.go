@@ -296,6 +296,8 @@ func New_post(w http.ResponseWriter, req *http.Request) {
 				_, err = f.Write(finalBytes)
 				Err_check(err)
 			} else if strings.HasPrefix(mime_type, "audio") {
+				io.Copy(f, file)
+				file_info = generic_gen_info(handler.Size)
 				file_pre = "audio_image"
 			} else {
 				io.Copy(f, file)

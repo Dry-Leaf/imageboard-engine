@@ -48,12 +48,6 @@ go mod tidy
 
 go build --tags "fts5" -o engine *.go
 
-`Note`
-
-The icu_replace.so file was compiled from this repo: https://github.com/gwenn/sqlite-regex-replace-ext
-
-gcc --shared -fPIC -I sqlite-autoconf-3071100 icu_replace.c -o icu_replace.so
-
 `To use nginx`
 
 wget (current version from http://nginx.org/en/download.html)
