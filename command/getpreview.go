@@ -1,30 +1,30 @@
 package main
 
 import (
-    "bytes"
-    "strconv"
-    "os"
-    "math/rand"
-    "net/http"
-    "text/template"
+	"bytes"
+	"math/rand"
+	"net/http"
+	"os"
+	"strconv"
+	"text/template"
 
-    _ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Prev struct {
-    Id string
-    Board string
-    Content string
-    Time string
-    Filename string
-    Fileinfo string
-    Filemime string
-    Imgprev string 
-    Option string
+	Id       string
+	Board    string
+	Content  string
+	Time     string
+	Filename string
+	Fileinfo string
+	Filemime string
+	Imgprev  string
+	Option   string
 }
 
 const (
-    prev_body = `<label class="{{.Option}}"><time>{{.Time}}</time> <selfref>No. {{.Id}}</selfref></label>
+	prev_body = `<label class="{{.Option}}"><time>{{.Time}}</time> <selfref>No. {{.Id}}</selfref></label>
         <br>
         {{if .Filemime}}<label>File <a href="/">{{.Filename}}</a> - ({{.Fileinfo}})</label><br>{{end}}
         <div class="prevcontent">
@@ -34,54 +34,56 @@ const (
         {{.Content}}</div>`
 )
 
-//gets a random banner, the names if which should be numbers 0-indexed
+// gets a random banner, the names if which should be numbers 0-indexed
 func Get_banner(w http.ResponseWriter, req *http.Request) {
-    num := strconv.Itoa(rand.Intn(BannerNum))
-    path := BP + "/head/resources/banners/" + num + ".webp"
-    dat, err := os.ReadFile(path)
-    Err_check(err)
+	num := strconv.Itoa(rand.Intn(BannerNum))
+	path := BP + "/head/resources/banners/" + num
+	dat, err := os.ReadFile(path)
+	Err_check(err)
 
-    w.Write(dat)                    
+	w.Write(dat)
 }
 
-//retrieves post request
+// retrieves post request
 func Get_prev(w http.ResponseWriter, req *http.Request) {
-    ctx := req.Context()
+	ctx := req.Context()
 
-    if Request_filter(w, req, "GET", 1 << 13) == 0 {return}
+	if Request_filter(w, req, "GET", 1<<13) == 0 {
+		return
+	}
 
-    id := req.FormValue("p")
-    board := req.FormValue("board")
+	id := req.FormValue("p")
+	board := req.FormValue("board")
 
-    if id == "" || board == "" {
-        http.Error(w, "Invalid preview request.", http.StatusBadRequest)
-        return
-    }
+	if id == "" || board == "" {
+		http.Error(w, "Invalid preview request.", http.StatusBadRequest)
+		return
+	}
 
-    stmts := Checkout()
-    defer Checkin(stmts)
-    stmt := stmts[prev_stmt]
+	stmts := Checkout()
+	defer Checkin(stmts)
+	stmt := stmts[prev_stmt]
 
-    var data string
-    var temp bytes.Buffer
-    var prv Prev
-    prv.Board = board
-    prv.Id = id
+	var data string
+	var temp bytes.Buffer
+	var prv Prev
+	prv.Board = board
+	prv.Id = id
 
-    row := stmt.QueryRowContext(ctx, id, board)
+	row := stmt.QueryRowContext(ctx, id, board)
 
-    err := row.Scan(&prv.Content, &prv.Time, &prv.Filename, &prv.Fileinfo, &prv.Filemime, &prv.Imgprev, &prv.Option)
-    Query_err_check(err)
+	err := row.Scan(&prv.Content, &prv.Time, &prv.Filename, &prv.Fileinfo, &prv.Filemime, &prv.Imgprev, &prv.Option)
+	Query_err_check(err)
 
-    Prev_body, err := template.New("todos").Funcs(Filefuncmap).Parse(prev_body)
-    Err_check(err)
-    Prev_body.Execute(&temp, prv)
+	Prev_body, err := template.New("todos").Funcs(Filefuncmap).Parse(prev_body)
+	Err_check(err)
+	Prev_body.Execute(&temp, prv)
 
-    data = temp.String()    
+	data = temp.String()
 
-    w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-    w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 
-    w.Write([]byte(data))
+	w.Write([]byte(data))
 
 }
