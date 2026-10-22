@@ -16,6 +16,10 @@ a {
     text-decoration: none;
 }
 
+iframe {
+    width: 70vw !important;
+}
+
 td, iframe {
     border: none;
 }
